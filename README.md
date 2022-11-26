@@ -48,6 +48,7 @@ Don't use something else like for example serving via Python! The one above will
 
 ## Dead ends
 
+* referencing Raylib-Cs doesn't work due to bug in dotnet wasm, it create some wrapper in C++ but the `-` is interpreted as invalid symbol during compilation and the 
 * For whatever reason with `[DllImport]` couldn't find the library, but with .NET 7 `[LibraryImport]` it can
 * .NET 7 before the final release didn't work, probably a problem of an older version of emscripten, see [here](https://www.reddit.com/r/Blazor/comments/x1rqgx/comment/imfe71r/?context=3)
 
@@ -58,4 +59,3 @@ Don't use something else like for example serving via Python! The one above will
 * https://devblogs.microsoft.com/dotnet/use-net-7-from-any-javascript-app-in-net-7/
 * `[LibraryImport]` https://learn.microsoft.com/en-us/dotnet/standard/native-interop/pinvoke-source-generation
   * Compatibility differences between `[LibraryImport]` and `[DllImport]` https://github.com/dotnet/runtime/blob/main/docs/design/libraries/LibraryImportGenerator/Compatibility.md
-
