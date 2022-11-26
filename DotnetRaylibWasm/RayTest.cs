@@ -6,7 +6,7 @@ using Raylib_cs;
 
 namespace WebTest;
 
-public static partial class RayThing
+public static partial class RayTest
 {
     [JSExport]
     public static void Start()
@@ -15,8 +15,7 @@ public static partial class RayThing
         {
             Console.WriteLine("About to call Raylib.");
 
-            Raylib.IsWindowFullscreen();
-
+            // TODO: Raylib.WindowShouldClose() is causing abort
             //while (Raylib.WindowShouldClose())
             {
                 Raylib.InitWindow(600, 400, "title");

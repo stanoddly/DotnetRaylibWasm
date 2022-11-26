@@ -16,15 +16,11 @@ setModuleImports('main.js', {
     }
 });
 
-//var Module = globalThis.Module;
-
-//document.getElementById('out').innerHTML = text;
 const exports = await getAssemblyExports(getConfig().mainAssemblyName);
 await dotnet.run();
 
-console.log("What's the module?");
-
+// TODO: is there a better way to setup canvas directly in dotnet.run or prior that? 
 dotnet.instance.Module['canvas'] = (function() { return document.getElementById('canvas'); })();
-console.log(dotnet.instance.Module.canvas);
 
-await exports.WebTest.RayThing.Start();
+// this calls our C# code using raylib 
+exports.WebTest.RayTest.Start();

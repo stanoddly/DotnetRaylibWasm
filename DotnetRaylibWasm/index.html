@@ -1,6 +1,4 @@
 <!DOCTYPE html>
-<!--  Licensed to the .NET Foundation under one or more agreements. -->
-<!-- The .NET Foundation licenses this file to you under the MIT license. -->
 <html>
 
 <head>
@@ -14,7 +12,6 @@
     div.emscripten_border { border: 1px solid black; }
     canvas.emscripten {
       border: 0px none;
-      
       width: 100%;
     }
   </style>
@@ -24,12 +21,6 @@
   <div class="emscripten_border">
     <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
   </div>
-
-  <script type='text/javascript'>
-    var Module = {
-      canvas: (function() { return document.getElementById('canvas'); })()
-    };
-  </script>
 
   <script type='module' src="./main.js"></script>
 </body>
