@@ -13,15 +13,14 @@ namespace Raylib_cs
         /// Used by DllImport to load the native library
         /// </summary>
         public const string nativeLibName = "libraylib";
-        //public const string nativeLibName = "__Internal";
 
-        public const string RAYLIB_VERSION = "4.0";
+        public const string RAYLIB_VERSION = "4.2";
 
         public const float DEG2RAD = MathF.PI / 180.0f;
         public const float RAD2DEG = 180.0f / MathF.PI;
 
         /// <summary>
-        /// Returns color with alpha applied, alpha goes from 0.0f to 1.0f<br/>
+        /// Get color with alpha applied, alpha goes from 0.0f to 1.0f<br/>
         /// NOTE: Added for compatability with previous versions
         /// </summary>
         public static Color Fade(Color color, float alpha) => ColorAlpha(color, alpha);
@@ -33,33 +32,20 @@ namespace Raylib_cs
         // Window-related functions
 
         /// <summary>Initialize window and OpenGL context</summary>
-        //[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        //public static extern void InitWindow(int width, int height, sbyte* title);
-        [LibraryImport(nativeLibName, StringMarshalling = StringMarshalling.Utf8)]
-        [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-        public static partial void InitWindow(int width, int height, string title);
+        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void InitWindow(int width, int height, sbyte* title);
 
         /// <summary>Check if KEY_ESCAPE pressed or Close icon pressed</summary>
-        //[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        [LibraryImport(nativeLibName, StringMarshalling = StringMarshalling.Utf8)]
-        [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-        public static partial CBool WindowShouldClose();
+        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern CBool WindowShouldClose();
 
         /// <summary>Close window and unload OpenGL context</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void CloseWindow();
 
         /// <summary>Check if window has been initialized successfully</summary>
-        //[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        
-        [LibraryImport(nativeLibName)]
-        [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-        // TODO: Why is this a compilation error?
-        // [return: MarshalAs(UnmanagedType.U1)]
-        [return: MarshalAs(0x4)]
-        public static partial bool IsWindowReady();
-        
-        //public static extern CBool IsWindowReady();
+        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern CBool IsWindowReady();
 
         /// <summary>Check if window is currently fullscreen</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
@@ -97,7 +83,7 @@ namespace Raylib_cs
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void ClearWindowState(ConfigFlags flag);
 
-        /// <summary>Toggle fullscreen mode (only PLATFORM_DESKTOP)</summary>
+        /// <summary>Toggle window state: fullscreen/windowed (only PLATFORM_DESKTOP)</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void ToggleFullscreen();
 
@@ -137,6 +123,10 @@ namespace Raylib_cs
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void SetWindowSize(int width, int height);
 
+        /// <summary>Set window opacity [0.0f..1.0f] (only PLATFORM_DESKTOP)</summary>
+        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void SetWindowOpacity(float opacity);
+
         /// <summary>Get native window handle</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void* GetWindowHandle();
@@ -148,6 +138,14 @@ namespace Raylib_cs
         /// <summary>Get current screen height</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int GetScreenHeight();
+
+        /// <summary>Get current render width (it considers HiDPI)</summary>
+        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int GetRenderWidth();
+
+        /// <summary>Get current render height (it considers HiDPI)</summary>
+        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int GetRenderHeight();
 
         /// <summary>Get number of connected monitors</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
@@ -161,19 +159,19 @@ namespace Raylib_cs
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern Vector2 GetMonitorPosition(int monitor);
 
-        /// <summary>Get primary monitor width</summary>
+        /// <summary>Get specified monitor width</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int GetMonitorWidth(int monitor);
 
-        /// <summary>Get primary monitor height</summary>
+        /// <summary>Get specified monitor height</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int GetMonitorHeight(int monitor);
 
-        /// <summary>Get primary monitor physical width in millimetres</summary>
+        /// <summary>Get specified monitor physical width in millimetres</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int GetMonitorPhysicalWidth(int monitor);
 
-        /// <summary>Get primary monitor physical height in millimetres</summary>
+        /// <summary>Get specified monitor physical height in millimetres</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int GetMonitorPhysicalHeight(int monitor);
 
@@ -189,7 +187,7 @@ namespace Raylib_cs
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern Vector2 GetWindowScaleDPI();
 
-        /// <summary>Get the human-readable, UTF-8 encoded name of the primary monitor</summary>
+        /// <summary>Get the human-readable, UTF-8 encoded name of the specified monitor</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern sbyte* GetMonitorName(int monitor);
 
@@ -200,6 +198,14 @@ namespace Raylib_cs
         /// <summary>Set clipboard text content</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void SetClipboardText(sbyte* text);
+
+        /// <summary>Enable waiting for events on EndDrawing(), no automatic event polling</summary>
+        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void EnableEventWaiting();
+
+        /// <summary>Disable waiting for events on EndDrawing(), automatic events polling</summary>
+        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void DisableEventWaiting();
 
         // Custom frame control functions
         // NOTE: Those functions are intended for advance users that want full control over the frame processing
@@ -214,9 +220,9 @@ namespace Raylib_cs
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void PollInputEvents();
 
-        /// <summary>Wait for some milliseconds (halt program execution)</summary>
+        /// <summary>Wait for some time (halt program execution)</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void WaitTime(float ms);
+        public static extern void WaitTime(double seconds);
 
         // Cursor-related functions
 
@@ -248,22 +254,16 @@ namespace Raylib_cs
         // Drawing-related functions
 
         /// <summary>Set background color (framebuffer clear color)</summary>
-        //[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        [LibraryImport(nativeLibName)]
-        [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-        public static partial void ClearBackground(Color color);
+        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void ClearBackground(Color color);
 
         /// <summary>Setup canvas (framebuffer) to start drawing</summary>
-        //[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        [LibraryImport(nativeLibName)]
-        [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-        public static partial void BeginDrawing();
+        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void BeginDrawing();
 
         /// <summary>End canvas drawing and swap buffers (double buffering)</summary>
-        [LibraryImport(nativeLibName, StringMarshalling = StringMarshalling.Utf8)]
-        [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-        //[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static partial void EndDrawing();
+        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void EndDrawing();
 
         /// <summary>Initialize 2D mode with custom camera (2D)</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
@@ -374,31 +374,31 @@ namespace Raylib_cs
 
         // Screen-space-related functions
 
-        /// <summary>Returns a ray trace from mouse position</summary>
+        /// <summary>Get a ray trace from mouse position</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern Ray GetMouseRay(Vector2 mousePosition, Camera3D camera);
 
-        /// <summary>Returns camera transform matrix (view matrix)</summary>
+        /// <summary>Get camera transform matrix (view matrix)</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern Matrix4x4 GetCameraMatrix(Camera3D camera);
 
-        /// <summary>Returns camera 2d transform matrix</summary>
+        /// <summary>Get camera 2d transform matrix</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern Matrix4x4 GetCameraMatrix2D(Camera2D camera);
 
-        /// <summary>Returns the screen space position for a 3d world space position</summary>
+        /// <summary>Get the screen space position for a 3d world space position</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern Vector2 GetWorldToScreen(Vector3 position, Camera3D camera);
 
-        /// <summary>Returns size position for a 3d world space position</summary>
+        /// <summary>Get size position for a 3d world space position</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern Vector2 GetWorldToScreenEx(Vector3 position, Camera3D camera, int width, int height);
 
-        /// <summary>Returns the screen space position for a 2d camera world space position</summary>
+        /// <summary>Get the screen space position for a 2d camera world space position</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern Vector2 GetWorldToScreen2D(Vector2 position, Camera2D camera);
 
-        /// <summary>Returns the world space position for a 2d camera screen space position</summary>
+        /// <summary>Get the world space position for a 2d camera screen space position</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern Vector2 GetScreenToWorld2D(Vector2 position, Camera2D camera);
 
@@ -409,22 +409,22 @@ namespace Raylib_cs
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void SetTargetFPS(int fps);
 
-        /// <summary>Returns current FPS</summary>
+        /// <summary>Get current FPS</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int GetFPS();
 
-        /// <summary>Returns time in seconds for last frame drawn</summary>
+        /// <summary>Get time in seconds for last frame drawn</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern float GetFrameTime();
 
-        /// <summary>Returns elapsed time in seconds since InitWindow()</summary>
+        /// <summary>Get elapsed time in seconds since InitWindow()</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern double GetTime();
 
 
         // Misc. functions
 
-        /// <summary>Returns a random value between min and max (both included)</summary>
+        /// <summary>Get a random value between min and max (both included)</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int GetRandomValue(int min, int max);
 
@@ -499,6 +499,10 @@ namespace Raylib_cs
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern CBool SaveFileData(sbyte* fileName, void* data, uint bytesToWrite);
 
+        /// <summary>Export data to code (.h), returns true on success</summary>
+        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern CBool ExportDataAsCode(sbyte* data, uint size, sbyte* fileName);
+
         // Load text data from file (read), returns a '\0' terminated string
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern char* LoadFileText(sbyte* fileName);
@@ -522,6 +526,10 @@ namespace Raylib_cs
         /// <summary>Check file extension</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern CBool IsFileExtension(sbyte* fileName, sbyte* ext);
+
+        /// <summary> Get file length in bytes</summary>
+        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int GetFileLength(sbyte* fileName);
 
         /// <summary>Get pointer to extension for a filename string (includes dot: '.png')</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
@@ -547,13 +555,21 @@ namespace Raylib_cs
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern sbyte* GetWorkingDirectory();
 
+        /// <summary>Get the directory of the running application (uses static string)</summary>
+        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern sbyte* GetApplicationDirectory();
+
         /// <summary>Get filenames in a directory path (memory should be freed)</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern char** GetDirectoryFiles(sbyte* dirPath, int* count);
+        public static extern FilePathList LoadDirectoryFiles(sbyte* dirPath, int* count);
 
         /// <summary>Clear directory files paths buffers (free memory)</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void ClearDirectoryFiles();
+        public static extern void UnloadDirectoryFiles(FilePathList files);
+
+        /// <summary>Check if a given path is a file or a directory</summary>
+        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern CBool IsPathFile(sbyte* path);
 
         /// <summary>Change working directory, return true on success</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
@@ -565,11 +581,11 @@ namespace Raylib_cs
 
         /// <summary>Get dropped files names (memory should be freed)</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern sbyte** GetDroppedFiles(int* count);
+        public static extern FilePathList LoadDroppedFiles();
 
         /// <summary>Clear dropped files paths buffer (free memory)</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void ClearDroppedFiles();
+        public static extern void UnloadDroppedFiles(FilePathList files);
 
         /// <summary>Get file modification time (last write time)</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
@@ -593,17 +609,6 @@ namespace Raylib_cs
         /// <summary>Decode Base64 string data</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern byte* DecodeDataBase64(byte* data, int* outputLength);
-
-
-        // Persistent storage management
-
-        /// <summary>Save integer value to storage file (to defined position)</summary>
-        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern CBool SaveStorageValue(uint position, int value);
-
-        /// <summary>Load integer value from storage file (from defined position)</summary>
-        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int LoadStorageValue(uint position);
 
         /// <summary>Open URL with default system browser (if available)</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
@@ -650,7 +655,7 @@ namespace Raylib_cs
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern CBool IsGamepadAvailable(int gamepad);
 
-        /// <summary>Return gamepad internal name id</summary>
+        /// <summary>Get gamepad internal name id</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern sbyte* GetGamepadName(int gamepad);
 
@@ -674,11 +679,11 @@ namespace Raylib_cs
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int GetGamepadButtonPressed();
 
-        /// <summary>Return gamepad axis count for a gamepad</summary>
+        /// <summary>Get gamepad axis count for a gamepad</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int GetGamepadAxisCount(int gamepad);
 
-        /// <summary>Return axis movement value for a gamepad axis</summary>
+        /// <summary>Get axis movement value for a gamepad axis</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern float GetGamepadAxisMovement(int gamepad, GamepadAxis axis);
 
@@ -705,15 +710,15 @@ namespace Raylib_cs
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern CBool IsMouseButtonUp(MouseButton button);
 
-        /// <summary>Returns mouse position X</summary>
+        /// <summary>Get mouse position X</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int GetMouseX();
 
-        /// <summary>Returns mouse position Y</summary>
+        /// <summary>Get mouse position Y</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int GetMouseY();
 
-        /// <summary>Returns mouse position XY</summary>
+        /// <summary>Get mouse position XY</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern Vector2 GetMousePosition();
 
@@ -733,9 +738,13 @@ namespace Raylib_cs
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void SetMouseScale(float scaleX, float scaleY);
 
-        /// <summary>Returns mouse wheel movement Y</summary>
+        /// <summary>Get mouse wheel movement for X or Y, whichever is larger</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern float GetMouseWheelMove();
+
+        /// <summary>Get mouse wheel movement for both X and Y</summary>
+        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern Vector2 GetMouseWheelMoveV();
 
         /// <summary>Set mouse cursor</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
@@ -744,15 +753,15 @@ namespace Raylib_cs
 
         // Input-related functions: touch
 
-        /// <summary>Returns touch position X for touch point 0 (relative to screen size)</summary>
+        /// <summary>Get touch position X for touch point 0 (relative to screen size)</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int GetTouchX();
 
-        /// <summary>Returns touch position Y for touch point 0 (relative to screen size)</summary>
+        /// <summary>Get touch position Y for touch point 0 (relative to screen size)</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int GetTouchY();
 
-        /// <summary>Returns touch position XY for a touch point index (relative to screen size)</summary>
+        /// <summary>Get touch position XY for a touch point index (relative to screen size)</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern Vector2 GetTouchPosition(int index);
 
@@ -837,9 +846,11 @@ namespace Raylib_cs
         // Basic Shapes Drawing Functions (Module: shapes)
         //------------------------------------------------------------------------------------
 
-        /// <summary>Set texture and rectangle to be used on shapes drawing<br/>
+        /// <summary>
+        /// Set texture and rectangle to be used on shapes drawing<br/>
         /// NOTE: It can be useful when using basic shapes and one single font.<br/>
-        /// Defining a white rectangle would allow drawing everything in a single draw call.</summary>
+        /// Defining a white rectangle would allow drawing everything in a single draw call.
+        /// </summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void SetShapesTexture(Texture2D texture, Rectangle source);
 
@@ -1070,11 +1081,11 @@ namespace Raylib_cs
 
         /// <summary>Export image data to file</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void ExportImage(Image image, sbyte* fileName);
+        public static extern CBool ExportImage(Image image, sbyte* fileName);
 
         /// <summary>Export image as code file defining an array of bytes</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void ExportImageAsCode(Image image, sbyte* fileName);
+        public static extern CBool ExportImageAsCode(Image image, sbyte* fileName);
 
 
         // Image generation functions
@@ -1103,7 +1114,7 @@ namespace Raylib_cs
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern Image GenImageWhiteNoise(int width, int height, float factor);
 
-        /// <summary>Generate image: cellular algorithm. Bigger tileSize means bigger cells</summary>
+        /// <summary>Generate image: cellular algorithm, bigger tileSize means bigger cells</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern Image GenImageCellular(int width, int height, int tileSize);
 
@@ -1391,31 +1402,31 @@ namespace Raylib_cs
 
         // Color/pixel related functions
 
-        /// <summary>Returns hexadecimal value for a Color</summary>
+        /// <summary>Get hexadecimal value for a Color</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int ColorToInt(Color color);
 
-        /// <summary>Returns color normalized as float [0..1]</summary>
+        /// <summary>Get color normalized as float [0..1]</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern Vector4 ColorNormalize(Color color);
 
-        /// <summary>Returns color from normalized values [0..1]</summary>
+        /// <summary>Get color from normalized values [0..1]</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern Color ColorFromNormalized(Vector4 normalized);
 
-        /// <summary>Returns HSV values for a Color, hue [0..360], saturation/value [0..1]</summary>
+        /// <summary>Get HSV values for a Color, hue [0..360], saturation/value [0..1]</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern Vector3 ColorToHSV(Color color);
 
-        /// <summary>Returns a Color from HSV values, hue [0..360], saturation/value [0..1]</summary>
+        /// <summary>Get a Color from HSV values, hue [0..360], saturation/value [0..1]</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern Color ColorFromHSV(float hue, float saturation, float value);
 
-        /// <summary>Returns color with alpha applied, alpha goes from 0.0f to 1.0f</summary>
+        /// <summary>Get color with alpha applied, alpha goes from 0.0f to 1.0f</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern Color ColorAlpha(Color color, float alpha);
 
-        /// <summary>Returns src alpha-blended into dst color with tint</summary>
+        /// <summary>Get src alpha-blended into dst color with tint</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern Color ColorAlphaBlend(Color dst, Color src, Color tint);
 
@@ -1450,7 +1461,10 @@ namespace Raylib_cs
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern Font LoadFont(sbyte* fileName);
 
-        /// <summary>Load font from file with extended parameters</summary>
+        /// <summary>
+        /// Load font from file with extended parameters, use NULL for fontChars and 0 for glyphCount to load
+        /// the default character set
+        /// </summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern Font LoadFontEx(sbyte* fileName, int fontSize, int* fontChars, int glyphCount);
 
@@ -1458,8 +1472,7 @@ namespace Raylib_cs
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern Font LoadFontFromImage(Image image, Color key, int firstChar);
 
-        /// <summary>Load font from memory buffer, fileType refers to extension: i.e. "ttf"<br/>
-        /// fileData refers to const unsigned char *</summary>
+        /// <summary>Load font from memory buffer, fileType refers to extension: i.e. "ttf"</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern Font LoadFontFromMemory(sbyte* fileType, byte* fileData, int dataSize, int fontSize, int* fontChars, int glyphCount);
 
@@ -1479,6 +1492,10 @@ namespace Raylib_cs
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void UnloadFont(Font font);
 
+        /// <summary>Export font as code file, returns true on success</summary>
+        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern CBool ExportFontAsCode(Font font, sbyte* fileName);
+
 
         // Text drawing functions
 
@@ -1487,10 +1504,8 @@ namespace Raylib_cs
         public static extern void DrawFPS(int posX, int posY);
 
         /// <summary>Draw text (using default font)</summary>
-        //[DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        [LibraryImport(nativeLibName, StringMarshalling = StringMarshalling.Utf8)]
-        [UnmanagedCallConv(CallConvs = new[] { typeof(CallConvCdecl) })]
-        public static partial void DrawText(string text, int posX, int posY, int fontSize, Color color);
+        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void DrawText(sbyte* text, int posX, int posY, int fontSize, Color color);
 
         /// <summary>Draw text using font and additional parameters</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
@@ -1502,8 +1517,11 @@ namespace Raylib_cs
 
         /// <summary>Draw one character (codepoint)</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void DrawTextCodepoint(Font font, int codepoint, Vector2 position, float scale, Color tint);
+        public static extern void DrawTextCodepoint(Font font, int codepoint, Vector2 position, float fontSize, Color tint);
 
+        /// <summary>Draw multiple characters (codepoint)</summary>
+        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void DrawTextCodepoints(Font font, int* codepoints, int count, Vector2 position, float fontSize, float spacing, Color tint);
 
         // Text font info functions
 
@@ -1542,7 +1560,7 @@ namespace Raylib_cs
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int GetCodepointCount(sbyte* text);
 
-        /// <summary>Returns next codepoint in a UTF8 encoded string; 0x3f('?') is returned on failure</summary>
+        /// <summary>Get next codepoint in a UTF8 encoded string; 0x3f('?') is returned on failure</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int GetCodepoint(sbyte* text, int* bytesProcessed);
 
@@ -1770,11 +1788,6 @@ namespace Raylib_cs
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void GenMeshTangents(Mesh* mesh);
 
-        /// <summary>Compute mesh binormals</summary>
-        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void GenMeshBinormals(Mesh* mesh);
-
-
         // Material loading/unloading functions
 
         //TODO: safe Helper method
@@ -1873,7 +1886,7 @@ namespace Raylib_cs
 
         /// <summary>Draw a billboard texture defined by source</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void DrawBillboardRec(Camera3D camera, Texture2D texture, Rectangle source, Vector3 center, float size, Color tint);
+        public static extern void DrawBillboardRec(Camera3D camera, Texture2D texture, Rectangle source, Vector3 position, Vector2 size, Color tint);
 
         /// <summary>Draw a billboard texture defined by source and rotation</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
@@ -1917,15 +1930,11 @@ namespace Raylib_cs
 
         /// <summary>Detect collision between ray and sphere</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern CBool GetRayCollisionSphere(Ray ray, Vector3 center, float radius);
+        public static extern RayCollision GetRayCollisionSphere(Ray ray, Vector3 center, float radius);
 
         /// <summary>Detect collision between ray and box</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern RayCollision GetRayCollisionBox(Ray ray, BoundingBox box);
-
-        /// <summary>Get collision info between ray and model</summary>
-        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern RayCollision GetRayCollisionModel(Ray ray, Model model);
 
         /// <summary>Get collision info between ray and mesh</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
@@ -1969,8 +1978,7 @@ namespace Raylib_cs
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern Wave LoadWave(sbyte* fileName);
 
-        /// <summary>Load wave from memory buffer, fileType refers to extension: i.e. "wav"<br/>
-        /// fileData refers to a const unsigned char *</summary>
+        /// <summary>Load wave from memory buffer, fileType refers to extension: i.e. "wav"</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern Wave LoadWaveFromMemory(sbyte* fileType, byte* fileData, int dataSize);
 
@@ -1996,11 +2004,11 @@ namespace Raylib_cs
 
         /// <summary>Export wave data to file</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void ExportWave(Wave wave, sbyte* fileName);
+        public static extern CBool ExportWave(Wave wave, sbyte* fileName);
 
         /// <summary>Export wave sample data to code (.h)</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void ExportWaveAsCode(Wave wave, sbyte* fileName);
+        public static extern CBool ExportWaveAsCode(Wave wave, sbyte* fileName);
 
 
         // Wave/Sound management functions
@@ -2045,9 +2053,9 @@ namespace Raylib_cs
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void SetSoundPitch(Sound sound, float pitch);
 
-        /// <summary>Convert wave data to desired format</summary>
+        /// <summary>Set pan for a sound (0.5 is center)</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void WaveFormat(Wave* wave, int sampleRate, int sampleSize, int channels);
+        public static extern void SetSoundPan(Sound sound, float pan);
 
         /// <summary>Copy a wave to a new wave</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
@@ -2057,12 +2065,14 @@ namespace Raylib_cs
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void WaveCrop(Wave* wave, int initSample, int finalSample);
 
-        //TODO: Span
+        /// <summary>Convert wave data to desired format</summary>
+        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void WaveFormat(Wave* wave, int sampleRate, int sampleSize, int channels);
+
         /// <summary>Get samples data from wave as a floats array</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern float* LoadWaveSamples(Wave wave);
 
-        //TODO: Span
         /// <summary>Unload samples data loaded with LoadWaveSamples()</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void UnloadWaveSamples(float* samples);
@@ -2117,6 +2127,10 @@ namespace Raylib_cs
         /// <summary>Set pitch for a music (1.0 is base level)</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void SetMusicPitch(Music music, float pitch);
+
+        /// <summary>Set pan for a music (0.5 is center)</summary>
+        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void SetMusicPan(Music music, float pan);
 
         /// <summary>Get music time length (in seconds)</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
@@ -2173,8 +2187,24 @@ namespace Raylib_cs
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void SetAudioStreamPitch(AudioStream stream, float pitch);
 
+        /// <summary>Set pan for audio stream (0.5 is centered)</summary>
+        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void SetAudioStreamPan(AudioStream stream, float pan);
+
         /// <summary>Default size for new audio streams</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void SetAudioStreamBufferSizeDefault(int size);
+
+        /// <summary>Audio thread callback to request new data</summary>
+        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void SetAudioStreamCallback(AudioStream stream, delegate* unmanaged[Cdecl]<sbyte*, uint, void> callback);
+
+        /// <summary>Attach audio stream processor to stream</summary>
+        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void AttachAudioStreamProcessor(AudioStream stream, delegate* unmanaged[Cdecl]<sbyte*, uint, void> processor);
+
+        /// <summary>Detach audio stream processor from stream</summary>
+        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void DetachAudioStreamProcessor(AudioStream stream, delegate* unmanaged[Cdecl]<sbyte*, uint, void> processor);
     }
 }
