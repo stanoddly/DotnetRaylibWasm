@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <RuntimeIdentifier>browser-wasm</RuntimeIdentifier>
+    <WasmMainJSPath>main.js</WasmMainJSPath>
+    <OutputType>Exe</OutputType>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <EmccExtraLDFlags>libraylib.a</EmccExtraLDFlags>
+    <EmccCompileLinkFlag>libraylib.a -s USE_GLFW=3 -sASYNCIFY -sASSERTIONS=1</EmccCompileLinkFlag>
+    <EmccCompileOptimizationFlag>-s USE_GLFW=3 -sASYNCIFY -sASSERTIONS=1</EmccCompileOptimizationFlag>
+    <RunAOTCompilation>true</RunAOTCompilation>
+    <WasmBuildNative>true</WasmBuildNative>
+    <RootNamespace>WebTest</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <WasmExtraFilesToDeploy Include="index.html" />
+    <WasmExtraFilesToDeploy Include="main.js" />
+    <NativeFileReference Include="libraylib.a" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="RaylibCs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RaylibCs\RaylibCs.csproj" />
+  </ItemGroup>
+
+</Project>
