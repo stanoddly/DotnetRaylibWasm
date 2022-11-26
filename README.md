@@ -1,6 +1,6 @@
 # DotnetRaylibWasm
 
-This is a work-in-progress prototype for .NET 7 with Raylib compiled into WebAssembly (wasm)
+This is a work-in-progress prototype for .NET 7 with Raylib compiled into WebAssembly (wasm). It's purpose is to demonstrate the capability once it's finished. Check the list of [known issues](https://github.com/disketteman/DotnetRaylibWasm/issues).
 
 ## Setup
 
