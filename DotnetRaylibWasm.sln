@@ -2,7 +2,7 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotnetRaylibWasm", "DotnetRaylibWasm\DotnetRaylibWasm.csproj", "{DDF2D496-328C-4ECA-957D-911351873B66}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RaylibCs", "RaylibCs\RaylibCs.csproj", "{CEEDD2A7-B2C0-4757-8DB7-C5BB3D9AAFC0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Raylib_cs", "Raylib_cs\Raylib_cs.csproj", "{CEEDD2A7-B2C0-4757-8DB7-C5BB3D9AAFC0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
