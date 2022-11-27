@@ -75,3 +75,4 @@ Don't use something else like for example serving via Python! The one above will
 * https://devblogs.microsoft.com/dotnet/use-net-7-from-any-javascript-app-in-net-7/
 * Undocumented properties to tweak the build https://github.com/dotnet/runtime/blob/main/src/mono/wasm/build/WasmApp.targets
 * Hidden sample using `NativeFileReference` https://github.com/dotnet/runtime/tree/3b0ef303e0969fa376569baa38a98c870a8f7561/src/mono/sample/wasm/browser-advanced
+* Not really public interface of the `dotnet` JS module https://github.com/dotnet/runtime/blob/main/src/mono/wasm/runtime/dotnet.d.ts
