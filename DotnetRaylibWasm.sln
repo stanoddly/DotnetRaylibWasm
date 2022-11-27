@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotnetRaylibWasm", "DotnetR
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Raylib_cs", "Raylib_cs\Raylib_cs.csproj", "{CEEDD2A7-B2C0-4757-8DB7-C5BB3D9AAFC0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RaylibGame", "RaylibGame\RaylibGame.csproj", "{C69B71AB-CE5E-4F5B-8059-AD6A438E1892}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{CEEDD2A7-B2C0-4757-8DB7-C5BB3D9AAFC0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CEEDD2A7-B2C0-4757-8DB7-C5BB3D9AAFC0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CEEDD2A7-B2C0-4757-8DB7-C5BB3D9AAFC0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C69B71AB-CE5E-4F5B-8059-AD6A438E1892}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C69B71AB-CE5E-4F5B-8059-AD6A438E1892}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C69B71AB-CE5E-4F5B-8059-AD6A438E1892}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C69B71AB-CE5E-4F5B-8059-AD6A438E1892}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

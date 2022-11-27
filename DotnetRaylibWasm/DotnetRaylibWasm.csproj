@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Raylib_cs\Raylib_cs.csproj" />
+    <ProjectReference Include="..\RaylibGame\RaylibGame.csproj" />
   </ItemGroup>
 
 </Project>

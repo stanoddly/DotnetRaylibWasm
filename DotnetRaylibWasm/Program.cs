@@ -1,3 +1,1 @@
-using System;
-
-Console.WriteLine("Hello!");
+RaylibGame.Program.Main();

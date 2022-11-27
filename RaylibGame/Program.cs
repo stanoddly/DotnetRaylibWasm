@@ -1,13 +1,10 @@
-﻿using System;
-using System.Runtime.InteropServices.JavaScript;
-using Raylib_cs;
+﻿using Raylib_cs;
 
-namespace DotnetRaylibWasm;
+namespace RaylibGame;
 
-public static partial class RayTest
+public static class Program
 {
-    [JSExport]
-    public static void Start()
+    public static void Main()
     {
         try
         {
