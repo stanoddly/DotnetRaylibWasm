@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices.JavaScript;
-using System.Threading.Tasks;
 using Raylib_cs;
 
-namespace WebTest;
+namespace DotnetRaylibWasm;
 
 public static partial class RayTest
 {

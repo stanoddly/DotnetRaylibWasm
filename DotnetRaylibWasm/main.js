@@ -23,4 +23,4 @@ await dotnet.run();
 dotnet.instance.Module['canvas'] = (function() { return document.getElementById('canvas'); })();
 
 // this calls our C# code using raylib 
-exports.WebTest.RayTest.Start();
+exports.DotnetRaylibWasm.RayTest.Start();

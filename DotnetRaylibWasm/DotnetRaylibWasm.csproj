@@ -6,11 +6,11 @@
     <OutputType>Exe</OutputType>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <EmccExtraLDFlags>libraylib.a</EmccExtraLDFlags>
-    <EmccCompileLinkFlag>libraylib.a -s USE_GLFW=3 -sASYNCIFY -sASSERTIONS=1</EmccCompileLinkFlag>
-    <EmccCompileOptimizationFlag>-s USE_GLFW=3 -sASYNCIFY -sASSERTIONS=1</EmccCompileOptimizationFlag>
+    <EmccCompileLinkFlag>-s USE_GLFW=3 -sASYNCIFY -sASSERTIONS=1</EmccCompileLinkFlag>
+    <EmccCompileOptimizationFlag>-sALLOW_MEMORY_GROWTH -s USE_GLFW=3 -sASYNCIFY -sASSERTIONS=1</EmccCompileOptimizationFlag>
     <RunAOTCompilation>true</RunAOTCompilation>
     <WasmBuildNative>true</WasmBuildNative>
-    <RootNamespace>WebTest</RootNamespace>
+    <RootNamespace>DotnetRaylibWasm</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
