@@ -3,7 +3,7 @@
 import { dotnet } from './dotnet.js'
 
 await dotnet
-    .withDebugging(-1)
+    .withDebugging(1)
     .withDiagnosticTracing(false)
     .withApplicationArgumentsFromQuery()
     .create();

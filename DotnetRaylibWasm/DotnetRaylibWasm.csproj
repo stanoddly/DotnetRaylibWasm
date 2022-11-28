@@ -5,9 +5,7 @@
     <WasmMainJSPath>main.js</WasmMainJSPath>
     <OutputType>Exe</OutputType>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <EmccExtraLDFlags>libraylib.a</EmccExtraLDFlags>
-    <EmccCompileLinkFlag>-s USE_GLFW=3 -sASYNCIFY -sASSERTIONS=1</EmccCompileLinkFlag>
-    <EmccCompileOptimizationFlag>-sALLOW_MEMORY_GROWTH -s USE_GLFW=3 -sASYNCIFY -sASSERTIONS=1</EmccCompileOptimizationFlag>
+    <EmccCompileOptimizationFlag>-s USE_GLFW=3</EmccCompileOptimizationFlag>
     <RunAOTCompilation>true</RunAOTCompilation>
     <WasmBuildNative>true</WasmBuildNative>
     <RootNamespace>DotnetRaylibWasm</RootNamespace>
