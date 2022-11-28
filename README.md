@@ -29,7 +29,7 @@ dotnet tool install --global dotnet-serve
 
 Our simple usage of Raylib:
 ```
-./DotnetRaylibWasm/RayTest.cs
+./RaylibGame/Program.cs
 ```
 
 The static web page which is served to the browser:
@@ -42,9 +42,9 @@ The Javascript module which setups the dotnet runtime and runs our code using Ra
 ./DotnetRaylibWasm/main.js
 ```
 
-Our own fork of Raylib-cs
+Our own fork of Raylib-cs:
 ```
-RaylibCs/
+./Raylib_cs/
 ```
 
 ## Run it
@@ -76,3 +76,4 @@ Don't use something else like for example serving via Python! The one above will
 * Undocumented properties to tweak the build https://github.com/dotnet/runtime/blob/main/src/mono/wasm/build/WasmApp.targets
 * Hidden sample using `NativeFileReference` https://github.com/dotnet/runtime/tree/3b0ef303e0969fa376569baa38a98c870a8f7561/src/mono/sample/wasm/browser-advanced
 * Not really public interface of the `dotnet` JS module https://github.com/dotnet/runtime/blob/main/src/mono/wasm/runtime/dotnet.d.ts
+* Version of emscripten used by wasm-tools https://github.com/dotnet/runtime/blob/78a625d07982046cd68322b59d0001cda7047dee/src/mono/wasm/emscripten-version.txt
