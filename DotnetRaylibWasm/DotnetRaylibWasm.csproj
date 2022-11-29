@@ -15,7 +15,7 @@
     <WasmExtraFilesToDeploy Include="index.html" />
     <WasmExtraFilesToDeploy Include="main.js" />
     <WasmExtraFilesToDeploy Include="favicon.ico" />
-    <NativeFileReference Include="libraylib.a" />
+    <NativeFileReference Include="raylib.a" />
   </ItemGroup>
 
   <ItemGroup>

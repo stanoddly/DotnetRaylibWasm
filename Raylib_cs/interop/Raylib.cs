@@ -12,7 +12,7 @@ namespace Raylib_cs
         /// <summary>
         /// Used by DllImport to load the native library
         /// </summary>
-        public const string nativeLibName = "libraylib";
+        public const string nativeLibName = "raylib";
 
         public const string RAYLIB_VERSION = "4.2";
 
