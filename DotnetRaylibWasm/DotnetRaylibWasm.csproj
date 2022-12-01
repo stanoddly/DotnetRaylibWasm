@@ -5,7 +5,7 @@
     <WasmMainJSPath>main.js</WasmMainJSPath>
     <OutputType>Exe</OutputType>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <EmccExtraLDFlags>-s USE_GLFW=3</EmccExtraLDFlags>
+    <EmccFlags>-s MIN_WEBGL_VERSION=2 -s MAX_WEBGL_VERSION=2 -s USE_GLFW=3 -s ASYNCIFY=1 -s VERBOSE=1 -s ALLOW_MEMORY_GROWTH</EmccFlags>
     <RunAOTCompilation>true</RunAOTCompilation>
     <WasmBuildNative>true</WasmBuildNative>
     <RootNamespace>DotnetRaylibWasm</RootNamespace>

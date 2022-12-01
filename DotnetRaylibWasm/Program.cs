@@ -1,1 +1,1 @@
-await RaylibGame.Program.Main();
+RaylibGame.Program.Main();
