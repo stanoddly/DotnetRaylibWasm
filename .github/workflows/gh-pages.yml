@@ -1,0 +1,42 @@
+on: [push, workflow_dispatch]
+jobs:
+  gh-pages:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          path: DotnetRaylibWasm
+
+      - name: Checkout raylib
+        uses: actions/checkout@v3
+        with:
+          ref: 4.2.0
+          repository: raysan5/raylib
+          path: raylib
+
+      - name: Setup emsdk
+        uses: mymindstorm/setup-emsdk@v11
+        with:
+          version: 3.1.12
+          actions-cache-folder: 'emsdk-cache'
+
+      - name: Build raylib for Web
+        working-directory: raylib
+        run: |
+          emcmake cmake \
+            -B artifacts \
+            -D BUILD_EXAMPLES=Off \
+            -D PLATFORM=Web
+          cmake --build artifacts
+          cp artifacts/raylib/libraylib.a ../DotnetRaylibWasm/raylib.a
+
+      - name: Build dotnet project
+        working-directory: DotnetRaylibWasm
+        run: dotnet build -c Release
+
+      - name: Deploy to github pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./DotnetRaylibWasm/bin/Debug/net7.0/browser-wasm/AppBundle/
