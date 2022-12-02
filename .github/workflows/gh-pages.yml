@@ -1,7 +1,7 @@
 on: [push, workflow_dispatch]
 jobs:
   gh-pages:
-    runs-on: 7.0-jammy-amd64
+    runs-on: mcr.microsoft.com/dotnet/sdk:7.0-jammy-amd64
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
