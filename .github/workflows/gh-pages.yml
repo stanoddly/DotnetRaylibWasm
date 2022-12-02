@@ -1,12 +1,16 @@
 on: [push, workflow_dispatch]
 jobs:
   gh-pages:
-    runs-on: ubuntu-latest
+    runs-on: 7.0-jammy-amd64
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
           path: DotnetRaylibWasm
+
+      - name: Install wasm-tools
+        run: |
+          dotnet workload install wasm-tools
 
       - name: Checkout raylib
         uses: actions/checkout@v3
