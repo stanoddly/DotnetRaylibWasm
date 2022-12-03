@@ -1,12 +1,17 @@
 on: [push, workflow_dispatch]
 jobs:
   gh-pages:
-    runs-on: mcr.microsoft.com/dotnet/sdk:7.0-jammy-amd64
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
           path: DotnetRaylibWasm
+
+      - name: Setup .NET7
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '7.0.100'
 
       - name: Install wasm-tools
         run: |
@@ -33,7 +38,7 @@ jobs:
             -D BUILD_EXAMPLES=Off \
             -D PLATFORM=Web
           cmake --build artifacts
-          cp artifacts/raylib/libraylib.a ../DotnetRaylibWasm/raylib.a
+          cp artifacts/raylib/libraylib.a ../DotnetRaylibWasm/DotnetRaylibWasm/raylib.a
 
       - name: Build dotnet project
         working-directory: DotnetRaylibWasm
