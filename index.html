@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>WebTest</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="modulepreload" href="./main.js" />
+  <link rel="modulepreload" href="./dotnet.js" />
+
+  <style>
+    div.emscripten_border { border: 1px solid black; }
+    canvas.emscripten {
+      border: 0px none;
+      width: 100%;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="emscripten_border">
+    <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
+  </div>
+
+  <script type="module" src="./main.js"></script>
+</body>
+
+</html>
