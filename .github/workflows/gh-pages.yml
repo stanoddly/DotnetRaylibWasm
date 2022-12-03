@@ -3,6 +3,11 @@ jobs:
   gh-pages:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          path: DotnetRaylibWasm
+
       - name: Setup .NET7
         uses: actions/setup-dotnet@v3
         with:
@@ -26,17 +31,19 @@ jobs:
           actions-cache-folder: 'emsdk-cache'
 
       - name: Build raylib for Web
-        working-directory: raylib
         run: |
+          cd raylib
           emcmake cmake \
             -B artifacts \
             -D BUILD_EXAMPLES=Off \
             -D PLATFORM=Web
           cmake --build artifacts
-          cp artifacts/raylib/libraylib.a $GITHUB_WORKSPACE/DotnetRaylibWasm/raylib.a
+          cp artifacts/raylib/libraylib.a $GITHUB_WORKSPACE/DotnetRaylibWasm/DotnetRaylibWasm/raylib.a
 
       - name: Build dotnet project
-        run: dotnet build -c Release
+        run: |
+          cd DotnetRaylibWasm/
+          dotnet build -c Release
 
       - name: Deploy to github pages
         uses: peaceiris/actions-gh-pages@v3
