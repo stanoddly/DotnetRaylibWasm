@@ -49,4 +49,4 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: DotnetRaylibWasmRepo/DotnetRaylibWasm/bin/Debug/net7.0/browser-wasm/AppBundle
+          publish_dir: DotnetRaylibWasmRepo/DotnetRaylibWasm/bin/Release/net7.0/browser-wasm/AppBundle
