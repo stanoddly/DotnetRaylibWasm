@@ -3,11 +3,6 @@ jobs:
   gh-pages:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-        with:
-          path: DotnetRaylibWasm
-
       - name: Setup .NET7
         uses: actions/setup-dotnet@v3
         with:
@@ -38,14 +33,13 @@ jobs:
             -D BUILD_EXAMPLES=Off \
             -D PLATFORM=Web
           cmake --build artifacts
-          cp artifacts/raylib/libraylib.a ../DotnetRaylibWasm/DotnetRaylibWasm/raylib.a
+          cp artifacts/raylib/libraylib.a $GITHUB_WORKSPACE/DotnetRaylibWasm/raylib.a
 
       - name: Build dotnet project
-        working-directory: DotnetRaylibWasm
         run: dotnet build -c Release
 
       - name: Deploy to github pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./DotnetRaylibWasm/bin/Debug/net7.0/browser-wasm/AppBundle/
+          publish_dir: DotnetRaylibWasm/DotnetRaylibWasm/bin/Debug/net7.0/browser-wasm/AppBundle/
