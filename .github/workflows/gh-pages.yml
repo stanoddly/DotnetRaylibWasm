@@ -6,7 +6,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          path: DotnetRaylibWasm
+          path: DotnetRaylibWasmRepo
 
       - name: Setup .NET7
         uses: actions/setup-dotnet@v3
@@ -22,7 +22,7 @@ jobs:
         with:
           ref: 4.2.0
           repository: raysan5/raylib
-          path: raylib
+          path: RaylibRepo
 
       - name: Setup emsdk
         uses: mymindstorm/setup-emsdk@v11
@@ -32,21 +32,21 @@ jobs:
 
       - name: Build raylib for Web
         run: |
-          cd raylib
+          cd RaylibRepo
           emcmake cmake \
             -B artifacts \
             -D BUILD_EXAMPLES=Off \
             -D PLATFORM=Web
           cmake --build artifacts
-          cp artifacts/raylib/libraylib.a $GITHUB_WORKSPACE/DotnetRaylibWasm/DotnetRaylibWasm/raylib.a
+          cp artifacts/raylib/libraylib.a $GITHUB_WORKSPACE/DotnetRaylibWasmRepo/DotnetRaylibWasm/raylib.a
 
       - name: Build dotnet project
         run: |
-          cd DotnetRaylibWasm/
+          cd DotnetRaylibWasmRepo/
           dotnet build -c Release
 
       - name: Deploy to github pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: DotnetRaylibWasm/DotnetRaylibWasm/bin/Debug/net7.0/browser-wasm/AppBundle/
+          publish_dir: DotnetRaylibWasmRepo/DotnetRaylibWasm/bin/Debug/net7.0/browser-wasm/AppBundle
