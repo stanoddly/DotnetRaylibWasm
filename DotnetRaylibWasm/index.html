@@ -9,18 +9,21 @@
   <link rel="modulepreload" href="./dotnet.js" />
 
   <style>
-    div.emscripten_border { border: 1px solid black; }
     canvas.emscripten {
-      border: 0px none;
-      width: 100%;
+      border: 1px solid black;
+      padding-left: 0;
+      padding-right: 0;
+      margin-left: auto;
+      margin-right: auto;
+      display: block;
+      width: 800px;
+      height: 450px;
     }
   </style>
 </head>
 
 <body>
-  <div class="emscripten_border">
-    <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
-  </div>
+  <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
 
   <script type="module" src="./main.js"></script>
 </body>

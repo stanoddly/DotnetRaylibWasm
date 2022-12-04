@@ -5,12 +5,22 @@
     <WasmMainJSPath>main.js</WasmMainJSPath>
     <OutputType>Exe</OutputType>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <EmccFlags>-s MIN_WEBGL_VERSION=2 -s MAX_WEBGL_VERSION=2 -s USE_GLFW=3 -s ASYNCIFY=1 -s VERBOSE=1 -s ALLOW_MEMORY_GROWTH</EmccFlags>
     <RunAOTCompilation>true</RunAOTCompilation>
     <WasmBuildNative>true</WasmBuildNative>
     <RootNamespace>DotnetRaylibWasm</RootNamespace>
   </PropertyGroup>
 
+  <PropertyGroup Condition=" $(Configuration) == 'Debug' ">
+    <!-- -sASYNCIFY_IMPORTS=emscripten_sleep -sASYNCIFY_ADD=WindowShouldClose -sASYNCIFY_IGNORE_INDIRECT
+     -s USE_GLFW=3 -s ASYNCIFY=1 -s VERBOSE=1 -s INITIAL_MEMORY=100MB -s MAXIMUM_MEMORY=1000MB -s ALLOW_MEMORY_GROWTH=1 -s ASYNCIFY_STACK_SIZE=300000 
+     -->
+    <EmccFlags>-sUSE_GLFW=3 -sASYNCIFY=1 -sVERBOSE=1 -O2 -Wbad-function-cast -Wcast-function-type</EmccFlags>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" $(Configuration) == 'Release' ">
+    <EmccFlags>-s USE_GLFW=3 -s ASYNCIFY=1 -O3</EmccFlags>
+  </PropertyGroup>
+  
   <ItemGroup>
     <WasmExtraFilesToDeploy Include="index.html" />
     <WasmExtraFilesToDeploy Include="main.js" />
