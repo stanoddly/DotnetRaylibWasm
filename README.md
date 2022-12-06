@@ -5,7 +5,7 @@
 
 This is a work-in-progress prototype for .NET 7 with Raylib compiled into WebAssembly (wasm). It's purpose is to demonstrate the capability once it's finished.
 
-Demonstration: [https://disketteman.github.io/DotnetRaylibWasm/](https://disketteman.github.io/DotnetRaylibWasm/)
+GitHub Pages Demo: [disketteman.github.io/DotnetRaylibWasm/](https://disketteman.github.io/DotnetRaylibWasm/)
 
 ## Setup
 
@@ -54,7 +54,7 @@ The Javascript module which setups the dotnet runtime and runs our code using Ra
 
 ## Run it
 
-The latest version of main branch is available [here](Demonstration: [https://disketteman.github.io/DotnetRaylibWasm/](https://disketteman.github.io/DotnetRaylibWasm/)). To run it locally follow these instructions:
+The latest version of main branch is available [here](https://disketteman.github.io/DotnetRaylibWasm/). To run it locally follow these instructions:
 
 Build the solution either from your IDE or from command line within the root of the repository:
 
