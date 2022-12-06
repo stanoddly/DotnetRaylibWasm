@@ -54,7 +54,7 @@ The Javascript module which setups the dotnet runtime and runs our code using Ra
 
 ## Run it
 
-> **Info**
+> **Note**
 > The latest version of main branch is available [here](https://disketteman.github.io/DotnetRaylibWasm/). To run it locally follow these instructions:
 
 Build the solution either from your IDE or from command line within the root of the repository:
