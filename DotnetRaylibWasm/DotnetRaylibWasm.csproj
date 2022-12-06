@@ -5,21 +5,37 @@
     <WasmMainJSPath>main.js</WasmMainJSPath>
     <OutputType>Exe</OutputType>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <EmccExtraLDFlags>-s USE_GLFW=3</EmccExtraLDFlags>
     <RunAOTCompilation>true</RunAOTCompilation>
     <WasmBuildNative>true</WasmBuildNative>
     <RootNamespace>DotnetRaylibWasm</RootNamespace>
   </PropertyGroup>
 
+  <PropertyGroup Condition=" $(Configuration) == 'Debug' ">
+    <EmccFlags>-sUSE_GLFW=3 -sVERBOSE=1 -Wbad-function-cast -Wcast-function-type -O2 -g3 --emit-symbol-map -sASYNCIFY=1 -sVERBOSE=1 -sINITIAL_MEMORY=128MB -sMAXIMUM_MEMORY=2048MB -sALLOW_MEMORY_GROWTH=1 -sASYNCIFY_STACK_SIZE=10000000</EmccFlags>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" $(Configuration) == 'Release' ">
+    <EmccFlags>-s USE_GLFW=3 -sASYNCIFY=1 -O3</EmccFlags>
+  </PropertyGroup>
+  
   <ItemGroup>
     <WasmExtraFilesToDeploy Include="index.html" />
+    <WasmExtraFilesToDeploy Include="raylib.html" />
     <WasmExtraFilesToDeploy Include="main.js" />
     <WasmExtraFilesToDeploy Include="favicon.ico" />
     <NativeFileReference Include="raylib.a" />
   </ItemGroup>
 
+  <!-- TODO: The target relies on a private '_WasmGenerateAppBundle', let's find a better solution -->
+  <Target Name="CopyResources" AfterTargets="_WasmGenerateAppBundle">
+    <ItemGroup>
+      <Resources Include="$(SolutionDir)\Examples\resources\**\*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(Resources)" DestinationFolder="$(OutputPath)\AppBundle\resources\%(RecursiveDir)" SkipUnchangedFiles="true" OverwriteReadOnlyFiles="true" Retries="3" RetryDelayMilliseconds="50" />
+  </Target>
+
   <ItemGroup>
-    <ProjectReference Include="..\RaylibGame\RaylibGame.csproj" />
+    <ProjectReference Include="..\Examples\Examples.csproj" />
   </ItemGroup>
 
 </Project>

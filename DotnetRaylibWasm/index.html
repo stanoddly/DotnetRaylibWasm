@@ -1,28 +1,151 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-  <title>WebTest</title>
+  <title>DotnetRaylibWasm</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="modulepreload" href="./main.js" />
-  <link rel="modulepreload" href="./dotnet.js" />
-
-  <style>
-    div.emscripten_border { border: 1px solid black; }
-    canvas.emscripten {
-      border: 0px none;
-      width: 100%;
-    }
-  </style>
 </head>
 
 <body>
-  <div class="emscripten_border">
-    <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
-  </div>
-
-  <script type="module" src="./main.js"></script>
+  <ul>
+    <li>Core
+      <ul>
+        <li><a href="/raylib.html?arg=Camera3dFirstPerson">Camera3dFirstPerson</a></li>
+        <li><a href="/raylib.html?arg=WorldScreen">WorldScreen</a></li>
+        <li><a href="/raylib.html?arg=ScissorTest">ScissorTest</a></li>
+        <li><a href="/raylib.html?arg=DropFiles">DropFiles</a></li>
+        <li><a href="/raylib.html?arg=StorageValues">StorageValues</a></li>
+        <li><a href="/raylib.html?arg=VrSimulator">VrSimulator</a></li>
+        <li><a href="/raylib.html?arg=RandomValues">RandomValues</a></li>
+        <li><a href="/raylib.html?arg=InputKeys">InputKeys</a></li>
+        <li><a href="/raylib.html?arg=WindowFlags">WindowFlags</a></li>
+        <li><a href="/raylib.html?arg=SplitScreen">SplitScreen</a></li>
+        <li><a href="/raylib.html?arg=SmoothPixelPerfect">SmoothPixelperfect</a></li>
+        <li><a href="/raylib.html?arg=Picking3d">Picking3D</a></li>
+        <li><a href="/raylib.html?arg=Camera3dFree">Camera3dFree</a></li>
+        <li><a href="/raylib.html?arg=InputMultitouch">InputMultitouch</a></li>
+        <li><a href="/raylib.html?arg=Camera2dPlatformer">Camera2dPlatformer</a></li>
+        <li><a href="/raylib.html?arg=InputGestures">InputGestures</a></li>
+        <li><a href="/raylib.html?arg=InputMouseWheel">InputMouseWheel</a></li>
+        <li><a href="/raylib.html?arg=BasicWindow">BasicWindow</a></li>
+        <li><a href="/raylib.html?arg=WindowLetterbox">WindowLetterbox</a></li>
+        <li><a href="/raylib.html?arg=InputGamepad">InputGamepad</a></li>
+        <li><a href="/raylib.html?arg=Camera2dDemo">Camera2dDemo</a></li>
+        <li><a href="/raylib.html?arg=InputMouse">InputMouse</a></li>
+        <li><a href="/raylib.html?arg=LoadingThread">LoadingThread</a></li>
+        <li><a href="/raylib.html?arg=BasicScreenManager">BasicScreenManager</a></li>
+        <li><a href="/raylib.html?arg=Camera3dMode">Camera3dMode</a></li>
+      </ul>
+    </li>
+    <li>Text
+      <ul>
+        <li><a href="/raylib.html?arg=InputBox">InputBox</a></li>
+        <li><a href="/raylib.html?arg=FormatText">FormatText</a></li>
+        <li><a href="/raylib.html?arg=RaylibFonts">RaylibFonts</a></li>
+        <li><a href="/raylib.html?arg=WritingAnim">WritingAnim</a></li>
+        <li><a href="/raylib.html?arg=RectangleBounds">RectangleBounds</a></li>
+        <li><a href="/raylib.html?arg=FontFilters">FontFilters</a></li>
+        <li><a href="/raylib.html?arg=FontLoading">FontLoading</a></li>
+        <li><a href="/raylib.html?arg=FontSdf">FontSdf</a></li>
+        <li><a href="/raylib.html?arg=FontSpritefont">FontSpritefont</a></li>
+      </ul>
+    </li>
+    <li>Textures
+      <ul>
+        <li><a href="/raylib.html?arg=ImageLoading">ImageLoading</a></li>
+        <li><a href="/raylib.html?arg=SpriteExplosion">SpriteExplosion</a></li>
+        <li><a href="/raylib.html?arg=ToImage">ToImage</a></li>
+        <li><a href="/raylib.html?arg=SpriteButton">SpriteButton</a></li>
+        <li><a href="/raylib.html?arg=ParticlesBlending">ParticlesBlending</a></li>
+        <li><a href="/raylib.html?arg=NpatchDrawing">NpatchDrawing</a></li>
+        <li><a href="/raylib.html?arg=DrawTiled">DrawTiled</a></li>
+        <li><a href="/raylib.html?arg=SpriteAnim">SpriteAnim</a></li>
+        <li><a href="/raylib.html?arg=BlendModes">BlendModes</a></li>
+        <li><a href="/raylib.html?arg=SrcRecDstRec">SrcRecDstRec</a></li>
+        <li><a href="/raylib.html?arg=Polygon">Polygon</a></li>
+        <li><a href="/raylib.html?arg=MousePainting">MousePainting</a></li>
+        <li><a href="/raylib.html?arg=Bunnymark">Bunnymark</a></li>
+        <li><a href="/raylib.html?arg=ImageGeneration">ImageGeneration</a></li>
+        <li><a href="/raylib.html?arg=RawData">RawData</a></li>
+        <li><a href="/raylib.html?arg=BackgroundScrolling">BackgroundScrolling</a></li>
+        <li><a href="/raylib.html?arg=ImageText">ImageText</a></li>
+        <li><a href="/raylib.html?arg=ImageDrawing">ImageDrawing</a></li>
+        <li><a href="/raylib.html?arg=ImageProcessing">ImageProcessing</a></li>
+        <li><a href="/raylib.html?arg=LogoRaylibTexture">LogoRaylibTexture</a></li>
+      </ul>
+    </li>
+    <li>Shapes
+      <ul>
+        <li><a href="/raylib.html?arg=EasingsRectangleArray">EasingsRectangleArray</a></li>
+        <li><a href="/raylib.html?arg=LogoRaylibAnim">LogoRaylibAnim</a></li>
+        <li><a href="/raylib.html?arg=EasingsBoxAnim">EasingsBoxAnim</a></li>
+        <li><a href="/raylib.html?arg=DrawCircleSector">DrawCircleSector</a></li>
+        <li><a href="/raylib.html?arg=EasingsBallAnim">EasingsBallAnim</a></li>
+        <li><a href="/raylib.html?arg=LinesBezier">LinesBezier</a></li>
+        <li><a href="/raylib.html?arg=ColorsPalette">ColorsPalette</a></li>
+        <li><a href="/raylib.html?arg=DrawRectangleRounded">DrawRectangleRounded</a></li>
+        <li><a href="/raylib.html?arg=FollowingEyes">FollowingEyes</a></li>
+        <li><a href="/raylib.html?arg=CollisionArea">CollisionArea</a></li>
+        <li><a href="/raylib.html?arg=RectangleScaling">RectangleScaling</a></li>
+        <li><a href="/raylib.html?arg=BouncingBall">BouncingBall</a></li>
+        <li><a href="/raylib.html?arg=LogoRaylibShape">LogoRaylibShape</a></li>
+        <li><a href="/raylib.html?arg=BasicShapes">BasicShapes</a></li>
+        <li><a href="/raylib.html?arg=DrawRing">DrawRing</a></li>
+      </ul>
+    </li>
+    <li>Shaders
+      <ul>
+        <li><a href="/raylib.html?arg=TextureWaves">TextureWaves</a></li>
+        <li><a href="/raylib.html?arg=MultiSample2d">MultiSample2d</a></li>
+        <li><a href="/raylib.html?arg=Fog">Fog</a></li>
+        <li><a href="/raylib.html?arg=ShapesTextures">ShapesTextures</a></li>
+        <li><a href="/raylib.html?arg=CustomUniform">CustomUniform</a></li>
+        <li><a href="/raylib.html?arg=TextureDrawing">TextureDrawing</a></li>
+        <li><a href="/raylib.html?arg=PostProcessing">PostProcessing</a></li>
+        <li><a href="/raylib.html?arg=MeshInstancing">MeshInstancing</a></li>
+        <li><a href="/raylib.html?arg=PaletteSwitch">PaletteSwitch</a></li>
+        <li><a href="/raylib.html?arg=Eratosthenes">Eratosthenes</a></li>
+        <li><a href="/raylib.html?arg=HotReloading">HotReloading</a></li>
+        <li><a href="/raylib.html?arg=TextureOutline">TextureOutline</a></li>
+        <li><a href="/raylib.html?arg=Spotlight">Spotlight</a></li>
+        <li><a href="/raylib.html?arg=SimpleMask">SimpleMask</a></li>
+        <li><a href="/raylib.html?arg=JuliaSet">JuliaSet</a></li>
+        <li><a href="/raylib.html?arg=ModelShader">ModelShader</a></li>
+        <li><a href="/raylib.html?arg=BasicLighting">BasicLighting</a></li>
+        <li><a href="/raylib.html?arg=Raymarching">Raymarching</a></li>
+      </ul>
+    </li>
+    <li>Models
+      <ul>
+        <li><a href="/raylib.html?arg=SkyboxDemo">SkyboxDemo</a></li>
+        <li><a href="/raylib.html?arg=WavingCubes">WavingCubes</a></li>
+        <li><a href="/raylib.html?arg=HeightmapDemo">HeightmapDemo</a></li>
+        <li><a href="/raylib.html?arg=CubicmapDemo">CubicmapDemo</a></li>
+        <li><a href="/raylib.html?arg=MeshGeneration">MeshGeneration</a></li>
+        <li><a href="/raylib.html?arg=LoadingGltf">LoadingGltf</a></li>
+        <li><a href="/raylib.html?arg=LoadingDemo">LoadingDemo</a></li>
+        <li><a href="/raylib.html?arg=SolarSystem">SolarSystem</a></li>
+        <li><a href="/raylib.html?arg=AnimationDemo">AnimationDemo</a></li>
+        <li><a href="/raylib.html?arg=LoadingVox">LoadingVox</a></li>
+        <li><a href="/raylib.html?arg=GeometricShapes">GeometricShapes</a></li>
+        <li><a href="/raylib.html?arg=YawPitchRoll">YawPitchRoll</a></li>
+        <li><a href="/raylib.html?arg=OrthographicProjection">OrthographicProjection</a></li>
+        <li><a href="/raylib.html?arg=BoxCollisions">BoxCollisions</a></li>
+        <li><a href="/raylib.html?arg=BillboardDemo">BillboardDemo</a></li>
+        <li><a href="/raylib.html?arg=FirstPersonMaze">FirstPersonMaze</a></li>
+      </ul>
+    </li>
+    <li>Audio
+      <ul>
+        <li><a href="/raylib.html?arg=SoundLoading">SoundLoading</a></li>
+        <li><a href="/raylib.html?arg=MultichannelSound">MultichannelSound</a></li>
+        <li><a href="/raylib.html?arg=ModulePlaying">ModulePlaying</a></li>
+        <li><a href="/raylib.html?arg=MusicStreamDemo">MusicStreamDemo</a></li>
+        <li><a href="/raylib.html?arg=RawStream">RawStream</a></li>
+      </ul>
+    </li>
+  </ul>
 </body>
 
 </html>
