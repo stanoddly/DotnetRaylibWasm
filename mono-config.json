@@ -677,7 +677,7 @@
     },
     {
       "behavior": "assembly",
-      "name": "RaylibGame.dll"
+      "name": "Examples.dll"
     },
     {
       "behavior": "assembly",
