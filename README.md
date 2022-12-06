@@ -1,6 +1,11 @@
 # DotnetRaylibWasm
 
-This is a work-in-progress prototype for .NET 7 with Raylib compiled into WebAssembly (wasm). It's purpose is to demonstrate the capability once it's finished. Check the list of [known issues](https://github.com/disketteman/DotnetRaylibWasm/issues).
+> **Warning**
+> This is heavy working progress. Majority of the examples don't work. Please take a look at the [issues](https://github.com/disketteman/DotnetRaylibWasm/issues).
+
+This is a work-in-progress prototype for .NET 7 with Raylib compiled into WebAssembly (wasm). It's purpose is to demonstrate the capability once it's finished.
+
+Demonstration: [https://disketteman.github.io/DotnetRaylibWasm/](https://disketteman.github.io/DotnetRaylibWasm/)
 
 ## Setup
 
@@ -27,9 +32,14 @@ dotnet tool install --global dotnet-serve
 
 ## Overview
 
-Our simple usage of Raylib:
+Examples are copied from [ChrisDill/Raylib-cs-Examples](https://github.com/ChrisDill/Raylib-cs-Examples).
 ```
-./RaylibGame/Program.cs
+./Examples
+```
+
+Our own fork of Raylib-cs:
+```
+./Raylib_cs/
 ```
 
 The static web page which is served to the browser:
@@ -42,12 +52,9 @@ The Javascript module which setups the dotnet runtime and runs our code using Ra
 ./DotnetRaylibWasm/main.js
 ```
 
-Our own fork of Raylib-cs:
-```
-./Raylib_cs/
-```
-
 ## Run it
+
+The latest version of main branch is available [here](Demonstration: [https://disketteman.github.io/DotnetRaylibWasm/](https://disketteman.github.io/DotnetRaylibWasm/)). To run it locally follow these instructions:
 
 Build the solution either from your IDE or from command line within the root of the repository:
 
@@ -55,15 +62,13 @@ Build the solution either from your IDE or from command line within the root of 
 dotnet build
 ```
 
-To server the files use this command from the root (change `\` to `/` in file path if you are not on Windows):
+To serve the files use this command from the root (change `\` to `/` in file path if you are not on Windows):
 
 ```
 dotnet serve --mime .wasm=application/wasm --mime .js=text/javascript --mime .json=application/json --directory DotnetRaylibWasm\bin\Debug\net7.0\browser-wasm\AppBundle\
 ```
 
 Copy the link from the output and open it in your browser (tested with the latest Edge, Chrome shuld work too)
-
-Don't use something else like for example serving via Python! The one above will make sure that `.wasm` files are served with `application/wasm`, so it's recognized by browsers and really handled as WebAssembly.
 
 > If mimeType is not `application/wasm`, reject returnValue with a `TypeError` and abort these substeps.\
 > ([source](https://webassembly.org/docs/web/#process-a-potential-webassembly-response))
