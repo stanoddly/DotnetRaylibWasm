@@ -8,6 +8,10 @@
     <RunAOTCompilation>true</RunAOTCompilation>
     <WasmBuildNative>true</WasmBuildNative>
     <RootNamespace>DotnetRaylibWasm</RootNamespace>
+    <WasmLinkIcalls>false</WasmLinkIcalls>
+    <WasmNativeStrip>false</WasmNativeStrip>
+    <PublishTrimmed>true</PublishTrimmed>
+    <TrimMode>full</TrimMode>
   </PropertyGroup>
 
   <PropertyGroup Condition=" $(Configuration) == 'Debug' ">
