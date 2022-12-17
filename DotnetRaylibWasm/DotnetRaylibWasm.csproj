@@ -8,7 +8,7 @@
     <RunAOTCompilation>true</RunAOTCompilation>
     <WasmBuildNative>true</WasmBuildNative>
     <RootNamespace>DotnetRaylibWasm</RootNamespace>
-    <WasmNativeStrip>false</WasmNativeStrip>
+    <WasmNativeStrip>true</WasmNativeStrip>
     <EnableAggressiveTrimming>true</EnableAggressiveTrimming>
     <PublishTrimmed>true</PublishTrimmed>
     <TrimMode>full</TrimMode>
