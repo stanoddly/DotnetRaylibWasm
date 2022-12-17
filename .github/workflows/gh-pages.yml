@@ -40,10 +40,10 @@ jobs:
           cmake --build artifacts
           cp artifacts/raylib/libraylib.a $GITHUB_WORKSPACE/DotnetRaylibWasmRepo/DotnetRaylibWasm/raylib.a
 
-      - name: Build dotnet project
+      - name: Publish dotnet project
         run: |
           cd DotnetRaylibWasmRepo/
-          dotnet build -c Release
+          dotnet publish -c Release
 
       - name: Deploy to github pages
         uses: peaceiris/actions-gh-pages@v3
