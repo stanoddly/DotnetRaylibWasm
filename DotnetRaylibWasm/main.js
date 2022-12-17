@@ -8,8 +8,7 @@ await dotnet
     .withApplicationArgumentsFromQuery()
     .create();
 
-dotnet.instance.Module['canvas'] = (function () {
-    return document.getElementById('canvas');
-})();
+dotnet.instance.Module['canvas'] = document.getElementById('canvas');
+
 
 await dotnet.run();
