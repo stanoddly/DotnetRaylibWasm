@@ -45,8 +45,6 @@ namespace Examples
             RandomValues.Main();
             ScissorTest.Main();
             SmoothPixelPerfect.Main();
-            SplitScreen.Main();
-            StorageValues.Main();
             VrSimulator.Main();
             WindowFlags.Main();
             WindowLetterbox.Main();
@@ -74,7 +72,6 @@ namespace Examples
             BackgroundScrolling.Main();
             BlendModes.Main();
             Bunnymark.Main();
-            DrawTiled.Main();
             ImageDrawing.Main();
             ImageGeneration.Main();
             ImageLoading.Main();
@@ -84,7 +81,6 @@ namespace Examples
             MousePainting.Main();
             NpatchDrawing.Main();
             ParticlesBlending.Main();
-            Polygon.Main();
             RawData.Main();
             SpriteAnim.Main();
             SpriteButton.Main();

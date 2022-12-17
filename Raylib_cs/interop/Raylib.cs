@@ -1382,11 +1382,7 @@ namespace Raylib_cs
         /// <summary>Draw texture quad with tiling and offset parameters</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void DrawTextureQuad(Texture2D texture, Vector2 tiling, Vector2 offset, Rectangle quad, Color tint);
-
-        /// <summary>Draw part of a texture (defined by a rectangle) with rotation and scale tiled into dest</summary>
-        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void DrawTextureTiled(Texture2D texture, Rectangle source, Rectangle dest, Vector2 origin, float rotation, float scale, Color tint);
-
+        
         /// <summary>Draw a part of a texture defined by a rectangle with 'pro' parameters</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void DrawTexturePro(Texture2D texture, Rectangle source, Rectangle dest, Vector2 origin, float rotation, Color tint);
@@ -1394,11 +1390,6 @@ namespace Raylib_cs
         /// <summary>Draws a texture (or part of it) that stretches or shrinks nicely</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void DrawTextureNPatch(Texture2D texture, NPatchInfo nPatchInfo, Rectangle dest, Vector2 origin, float rotation, Color tint);
-
-        /// <summary>Draw a textured polygon</summary>
-        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void DrawTexturePoly(Texture2D texture, Vector2 center, Vector2* points, Vector2* texcoords, int pointsCount, Color tint);
-
 
         // Color/pixel related functions
 
@@ -1678,11 +1669,7 @@ namespace Raylib_cs
         /// <summary>Draw cube wires (Vector version)</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void DrawCubeWiresV(Vector3 position, Vector3 size, Color color);
-
-        /// <summary>Draw cube textured</summary>
-        [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void DrawCubeTexture(Texture2D texture, Vector3 position, float width, float height, float length, Color color);
-
+        
         /// <summary>Draw cube with a region of a texture</summary>
         [DllImport(nativeLibName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void DrawCubeTextureRec(Texture2D texture, Vector3 position, float width, float height, float length, Color color);

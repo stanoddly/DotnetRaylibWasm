@@ -706,18 +706,6 @@ namespace Raylib_cs
             }
         }
 
-        /// <summary>Draw a textured polygon</summary>
-        public static void DrawTexturePoly(Texture2D texture, Vector2 center, Vector2[] points, Vector2[] texcoords, int pointsCount, Color tint)
-        {
-            fixed (Vector2* p = points)
-            {
-                fixed (Vector2* p1 = texcoords)
-                {
-                    DrawTexturePoly(texture, center, p, p1, pointsCount, tint);
-                }
-            }
-        }
-
         /// <summary>Draw text (using default font)</summary>
         public static void DrawText(string text, int posX, int posY, int fontSize, Color color)
         {
