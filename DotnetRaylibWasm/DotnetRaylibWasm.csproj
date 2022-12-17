@@ -37,15 +37,8 @@
     <WasmExtraFilesToDeploy Include="main.js" />
     <WasmExtraFilesToDeploy Include="favicon.ico" />
     <NativeFileReference Include="raylib.a" />
+    <WasmFilesToIncludeInFileSystem Include="$(SolutionDir)\Examples\resources\**\*.*" TargetPath="resources\%(RecursiveDir)\%(Filename)%(Extension)" />
   </ItemGroup>
-
-  <!-- TODO: The target relies on a private '_WasmGenerateAppBundle', let's find a better solution -->
-  <Target Name="CopyResources" AfterTargets="_WasmGenerateAppBundle">
-    <ItemGroup>
-      <Resources Include="$(SolutionDir)\Examples\resources\**\*.*" />
-    </ItemGroup>
-    <Copy SourceFiles="@(Resources)" DestinationFolder="$(OutputPath)\AppBundle\resources\%(RecursiveDir)" SkipUnchangedFiles="true" OverwriteReadOnlyFiles="true" Retries="3" RetryDelayMilliseconds="50" />
-  </Target>
 
   <ItemGroup>
     <ProjectReference Include="..\Examples\Examples.csproj" />
