@@ -8,8 +8,10 @@ await dotnet
     .withApplicationArgumentsFromQuery()
     .create();
 
-dotnet.instance.Module['canvas'] = (function () {
-    return document.getElementById('canvas');
-})();
+dotnet.instance.Module['canvas'] = document.getElementById('canvas');
+
+// We're ready to dotnet.run, so let's remove the spinner
+const loading_div = document.getElementById('spinner');
+loading_div.remove();
 
 await dotnet.run();
