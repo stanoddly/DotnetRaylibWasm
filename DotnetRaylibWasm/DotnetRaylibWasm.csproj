@@ -12,6 +12,8 @@
     <EnableAggressiveTrimming>true</EnableAggressiveTrimming>
     <PublishTrimmed>true</PublishTrimmed>
     <TrimMode>full</TrimMode>
+    <!-- This is to basically disable globalization to exclude icudt.dat (1.5MB) and reduce size of dotnet.wasm -->
+    <InvariantGlobalization>true</InvariantGlobalization>
   </PropertyGroup>
   
   <Choose>
