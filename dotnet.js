@@ -1189,7 +1189,6 @@ if (!Module["noFSInit"] && !FS.init.initialized)
 FS.ignorePermissions = false;
 
 TTY.init();
-SOCKFS.root = FS.mount(SOCKFS, {}, null);
   callRuntimeCallbacks(__ATINIT__);
 }
 
@@ -1511,16 +1510,16 @@ var tempI64;
 // === Body ===
 
 var ASM_CONSTS = {
-  639391: () => { if ((window.AudioContext || window.webkitAudioContext) === undefined) { return 0; } if (typeof(window.miniaudio) === 'undefined') { window.miniaudio = {}; miniaudio.devices = []; miniaudio.track_device = function(device) { for (var iDevice = 0; iDevice < miniaudio.devices.length; ++iDevice) { if (miniaudio.devices[iDevice] == null) { miniaudio.devices[iDevice] = device; return iDevice; } } miniaudio.devices.push(device); return miniaudio.devices.length - 1; }; miniaudio.untrack_device_by_index = function(deviceIndex) { miniaudio.devices[deviceIndex] = null; while (miniaudio.devices.length > 0) { if (miniaudio.devices[miniaudio.devices.length-1] == null) { miniaudio.devices.pop(); } else { break; } } }; miniaudio.untrack_device = function(device) { for (var iDevice = 0; iDevice < miniaudio.devices.length; ++iDevice) { if (miniaudio.devices[iDevice] == device) { return miniaudio.untrack_device_by_index(iDevice); } } }; miniaudio.get_device_by_index = function(deviceIndex) { return miniaudio.devices[deviceIndex]; }; miniaudio.unlock_event_types = (function(){ return ['touchstart', 'touchend', 'click']; })(); miniaudio.unlock = function() { for(var i = 0; i < miniaudio.devices.length; ++i) { var device = miniaudio.devices[i]; if (device != null && device.webaudio != null && device.state === 2 ) { device.webaudio.resume(); } } miniaudio.unlock_event_types.map(function(event_type) { document.removeEventListener(event_type, miniaudio.unlock, true); }); }; miniaudio.unlock_event_types.map(function(event_type) { document.addEventListener(event_type, miniaudio.unlock, true); }); } return 1; },  
- 641003: () => { return (navigator.mediaDevices !== undefined && navigator.mediaDevices.getUserMedia !== undefined); },  
- 641107: () => { try { var temp = new (window.AudioContext || window.webkitAudioContext)(); var sampleRate = temp.sampleRate; temp.close(); return sampleRate; } catch(e) { return 0; } },  
- 641278: ($0, $1, $2, $3, $4) => { var channels = $0; var sampleRate = $1; var bufferSize = $2; var isCapture = $3; var pDevice = $4; if (typeof(window.miniaudio) === 'undefined') { return -1; } var device = {}; device.webaudio = new (window.AudioContext || window.webkitAudioContext)({sampleRate:sampleRate}); device.webaudio.suspend(); device.state = 1; device.intermediaryBufferSizeInBytes = channels * bufferSize * 4; device.intermediaryBuffer = Module._malloc(device.intermediaryBufferSizeInBytes); device.intermediaryBufferView = new Float32Array(Module.HEAPF32.buffer, device.intermediaryBuffer, device.intermediaryBufferSizeInBytes); device.scriptNode = device.webaudio.createScriptProcessor(bufferSize, (isCapture) ? channels : 0, (isCapture) ? 0 : channels); if (isCapture) { device.scriptNode.onaudioprocess = function(e) { if (device.intermediaryBuffer === undefined) { return; } if (device.intermediaryBufferView.length == 0) { device.intermediaryBufferView = new Float32Array(Module.HEAPF32.buffer, device.intermediaryBuffer, device.intermediaryBufferSizeInBytes); } for (var iChannel = 0; iChannel < e.outputBuffer.numberOfChannels; ++iChannel) { e.outputBuffer.getChannelData(iChannel).fill(0.0); } var sendSilence = false; if (device.streamNode === undefined) { sendSilence = true; } if (e.inputBuffer.numberOfChannels != channels) { console.log("Capture: Channel count mismatch. " + e.inputBufer.numberOfChannels + " != " + channels + ". Sending silence."); sendSilence = true; } var totalFramesProcessed = 0; while (totalFramesProcessed < e.inputBuffer.length) { var framesRemaining = e.inputBuffer.length - totalFramesProcessed; var framesToProcess = framesRemaining; if (framesToProcess > (device.intermediaryBufferSizeInBytes/channels/4)) { framesToProcess = (device.intermediaryBufferSizeInBytes/channels/4); } if (sendSilence) { device.intermediaryBufferView.fill(0.0); } else { for (var iFrame = 0; iFrame < framesToProcess; ++iFrame) { for (var iChannel = 0; iChannel < e.inputBuffer.numberOfChannels; ++iChannel) { device.intermediaryBufferView[iFrame*channels + iChannel] = e.inputBuffer.getChannelData(iChannel)[totalFramesProcessed + iFrame]; } } } ccall("ma_device_process_pcm_frames_capture__webaudio", "undefined", ["number", "number", "number"], [pDevice, framesToProcess, device.intermediaryBuffer]); totalFramesProcessed += framesToProcess; } }; navigator.mediaDevices.getUserMedia({audio:true, video:false}) .then(function(stream) { device.streamNode = device.webaudio.createMediaStreamSource(stream); device.streamNode.connect(device.scriptNode); device.scriptNode.connect(device.webaudio.destination); }) .catch(function(error) { device.scriptNode.connect(device.webaudio.destination); }); } else { device.scriptNode.onaudioprocess = function(e) { if (device.intermediaryBuffer === undefined) { return; } if(device.intermediaryBufferView.length == 0) { device.intermediaryBufferView = new Float32Array(Module.HEAPF32.buffer, device.intermediaryBuffer, device.intermediaryBufferSizeInBytes); } var outputSilence = false; if (e.outputBuffer.numberOfChannels != channels) { console.log("Playback: Channel count mismatch. " + e.outputBufer.numberOfChannels + " != " + channels + ". Outputting silence."); outputSilence = true; return; } var totalFramesProcessed = 0; while (totalFramesProcessed < e.outputBuffer.length) { var framesRemaining = e.outputBuffer.length - totalFramesProcessed; var framesToProcess = framesRemaining; if (framesToProcess > (device.intermediaryBufferSizeInBytes/channels/4)) { framesToProcess = (device.intermediaryBufferSizeInBytes/channels/4); } ccall("ma_device_process_pcm_frames_playback__webaudio", "undefined", ["number", "number", "number"], [pDevice, framesToProcess, device.intermediaryBuffer]); if (outputSilence) { for (var iChannel = 0; iChannel < e.outputBuffer.numberOfChannels; ++iChannel) { e.outputBuffer.getChannelData(iChannel).fill(0.0); } } else { for (var iChannel = 0; iChannel < e.outputBuffer.numberOfChannels; ++iChannel) { var outputBuffer = e.outputBuffer.getChannelData(iChannel); var intermediaryBuffer = device.intermediaryBufferView; for (var iFrame = 0; iFrame < framesToProcess; ++iFrame) { outputBuffer[totalFramesProcessed + iFrame] = intermediaryBuffer[iFrame*channels + iChannel]; } } } totalFramesProcessed += framesToProcess; } }; device.scriptNode.connect(device.webaudio.destination); } return miniaudio.track_device(device); },  
- 645678: ($0) => { return miniaudio.get_device_by_index($0).webaudio.sampleRate; },  
- 645744: ($0) => { var device = miniaudio.get_device_by_index($0); if (device.scriptNode !== undefined) { device.scriptNode.onaudioprocess = function(e) {}; device.scriptNode.disconnect(); device.scriptNode = undefined; } if (device.streamNode !== undefined) { device.streamNode.disconnect(); device.streamNode = undefined; } device.webaudio.close(); device.webaudio = undefined; if (device.intermediaryBuffer !== undefined) { Module._free(device.intermediaryBuffer); device.intermediaryBuffer = undefined; device.intermediaryBufferView = undefined; device.intermediaryBufferSizeInBytes = undefined; } miniaudio.untrack_device_by_index($0); },  
- 646370: ($0) => { var device = miniaudio.get_device_by_index($0); device.webaudio.resume(); device.state = 2; },  
- 646466: ($0) => { var device = miniaudio.get_device_by_index($0); device.webaudio.resume(); device.state = 2; },  
- 646562: ($0) => { var device = miniaudio.get_device_by_index($0); device.webaudio.suspend(); device.state = 1; },  
- 646659: ($0) => { var device = miniaudio.get_device_by_index($0); device.webaudio.suspend(); device.state = 1; }
+  1570259: () => { if ((window.AudioContext || window.webkitAudioContext) === undefined) { return 0; } if (typeof(window.miniaudio) === 'undefined') { window.miniaudio = {}; miniaudio.devices = []; miniaudio.track_device = function(device) { for (var iDevice = 0; iDevice < miniaudio.devices.length; ++iDevice) { if (miniaudio.devices[iDevice] == null) { miniaudio.devices[iDevice] = device; return iDevice; } } miniaudio.devices.push(device); return miniaudio.devices.length - 1; }; miniaudio.untrack_device_by_index = function(deviceIndex) { miniaudio.devices[deviceIndex] = null; while (miniaudio.devices.length > 0) { if (miniaudio.devices[miniaudio.devices.length-1] == null) { miniaudio.devices.pop(); } else { break; } } }; miniaudio.untrack_device = function(device) { for (var iDevice = 0; iDevice < miniaudio.devices.length; ++iDevice) { if (miniaudio.devices[iDevice] == device) { return miniaudio.untrack_device_by_index(iDevice); } } }; miniaudio.get_device_by_index = function(deviceIndex) { return miniaudio.devices[deviceIndex]; }; miniaudio.unlock_event_types = (function(){ return ['touchstart', 'touchend', 'click']; })(); miniaudio.unlock = function() { for(var i = 0; i < miniaudio.devices.length; ++i) { var device = miniaudio.devices[i]; if (device != null && device.webaudio != null && device.state === 2 ) { device.webaudio.resume(); } } miniaudio.unlock_event_types.map(function(event_type) { document.removeEventListener(event_type, miniaudio.unlock, true); }); }; miniaudio.unlock_event_types.map(function(event_type) { document.addEventListener(event_type, miniaudio.unlock, true); }); } return 1; },  
+ 1571871: () => { return (navigator.mediaDevices !== undefined && navigator.mediaDevices.getUserMedia !== undefined); },  
+ 1571975: () => { try { var temp = new (window.AudioContext || window.webkitAudioContext)(); var sampleRate = temp.sampleRate; temp.close(); return sampleRate; } catch(e) { return 0; } },  
+ 1572146: ($0, $1, $2, $3, $4) => { var channels = $0; var sampleRate = $1; var bufferSize = $2; var isCapture = $3; var pDevice = $4; if (typeof(window.miniaudio) === 'undefined') { return -1; } var device = {}; device.webaudio = new (window.AudioContext || window.webkitAudioContext)({sampleRate:sampleRate}); device.webaudio.suspend(); device.state = 1; device.intermediaryBufferSizeInBytes = channels * bufferSize * 4; device.intermediaryBuffer = Module._malloc(device.intermediaryBufferSizeInBytes); device.intermediaryBufferView = new Float32Array(Module.HEAPF32.buffer, device.intermediaryBuffer, device.intermediaryBufferSizeInBytes); device.scriptNode = device.webaudio.createScriptProcessor(bufferSize, (isCapture) ? channels : 0, (isCapture) ? 0 : channels); if (isCapture) { device.scriptNode.onaudioprocess = function(e) { if (device.intermediaryBuffer === undefined) { return; } if (device.intermediaryBufferView.length == 0) { device.intermediaryBufferView = new Float32Array(Module.HEAPF32.buffer, device.intermediaryBuffer, device.intermediaryBufferSizeInBytes); } for (var iChannel = 0; iChannel < e.outputBuffer.numberOfChannels; ++iChannel) { e.outputBuffer.getChannelData(iChannel).fill(0.0); } var sendSilence = false; if (device.streamNode === undefined) { sendSilence = true; } if (e.inputBuffer.numberOfChannels != channels) { console.log("Capture: Channel count mismatch. " + e.inputBufer.numberOfChannels + " != " + channels + ". Sending silence."); sendSilence = true; } var totalFramesProcessed = 0; while (totalFramesProcessed < e.inputBuffer.length) { var framesRemaining = e.inputBuffer.length - totalFramesProcessed; var framesToProcess = framesRemaining; if (framesToProcess > (device.intermediaryBufferSizeInBytes/channels/4)) { framesToProcess = (device.intermediaryBufferSizeInBytes/channels/4); } if (sendSilence) { device.intermediaryBufferView.fill(0.0); } else { for (var iFrame = 0; iFrame < framesToProcess; ++iFrame) { for (var iChannel = 0; iChannel < e.inputBuffer.numberOfChannels; ++iChannel) { device.intermediaryBufferView[iFrame*channels + iChannel] = e.inputBuffer.getChannelData(iChannel)[totalFramesProcessed + iFrame]; } } } ccall("ma_device_process_pcm_frames_capture__webaudio", "undefined", ["number", "number", "number"], [pDevice, framesToProcess, device.intermediaryBuffer]); totalFramesProcessed += framesToProcess; } }; navigator.mediaDevices.getUserMedia({audio:true, video:false}) .then(function(stream) { device.streamNode = device.webaudio.createMediaStreamSource(stream); device.streamNode.connect(device.scriptNode); device.scriptNode.connect(device.webaudio.destination); }) .catch(function(error) { device.scriptNode.connect(device.webaudio.destination); }); } else { device.scriptNode.onaudioprocess = function(e) { if (device.intermediaryBuffer === undefined) { return; } if(device.intermediaryBufferView.length == 0) { device.intermediaryBufferView = new Float32Array(Module.HEAPF32.buffer, device.intermediaryBuffer, device.intermediaryBufferSizeInBytes); } var outputSilence = false; if (e.outputBuffer.numberOfChannels != channels) { console.log("Playback: Channel count mismatch. " + e.outputBufer.numberOfChannels + " != " + channels + ". Outputting silence."); outputSilence = true; return; } var totalFramesProcessed = 0; while (totalFramesProcessed < e.outputBuffer.length) { var framesRemaining = e.outputBuffer.length - totalFramesProcessed; var framesToProcess = framesRemaining; if (framesToProcess > (device.intermediaryBufferSizeInBytes/channels/4)) { framesToProcess = (device.intermediaryBufferSizeInBytes/channels/4); } ccall("ma_device_process_pcm_frames_playback__webaudio", "undefined", ["number", "number", "number"], [pDevice, framesToProcess, device.intermediaryBuffer]); if (outputSilence) { for (var iChannel = 0; iChannel < e.outputBuffer.numberOfChannels; ++iChannel) { e.outputBuffer.getChannelData(iChannel).fill(0.0); } } else { for (var iChannel = 0; iChannel < e.outputBuffer.numberOfChannels; ++iChannel) { var outputBuffer = e.outputBuffer.getChannelData(iChannel); var intermediaryBuffer = device.intermediaryBufferView; for (var iFrame = 0; iFrame < framesToProcess; ++iFrame) { outputBuffer[totalFramesProcessed + iFrame] = intermediaryBuffer[iFrame*channels + iChannel]; } } } totalFramesProcessed += framesToProcess; } }; device.scriptNode.connect(device.webaudio.destination); } return miniaudio.track_device(device); },  
+ 1576546: ($0) => { return miniaudio.get_device_by_index($0).webaudio.sampleRate; },  
+ 1576612: ($0) => { var device = miniaudio.get_device_by_index($0); if (device.scriptNode !== undefined) { device.scriptNode.onaudioprocess = function(e) {}; device.scriptNode.disconnect(); device.scriptNode = undefined; } if (device.streamNode !== undefined) { device.streamNode.disconnect(); device.streamNode = undefined; } device.webaudio.close(); device.webaudio = undefined; if (device.intermediaryBuffer !== undefined) { Module._free(device.intermediaryBuffer); device.intermediaryBuffer = undefined; device.intermediaryBufferView = undefined; device.intermediaryBufferSizeInBytes = undefined; } miniaudio.untrack_device_by_index($0); },  
+ 1577238: ($0) => { var device = miniaudio.get_device_by_index($0); device.webaudio.resume(); device.state = 2; },  
+ 1577334: ($0) => { var device = miniaudio.get_device_by_index($0); device.webaudio.resume(); device.state = 2; },  
+ 1577430: ($0) => { var device = miniaudio.get_device_by_index($0); device.webaudio.suspend(); device.state = 1; },  
+ 1577527: ($0) => { var device = miniaudio.get_device_by_index($0); device.webaudio.suspend(); device.state = 1; }
 };
 function GetCanvasHeight() { return canvas.clientHeight; }
 function GetCanvasWidth() { return canvas.clientWidth; }
@@ -1666,18 +1665,6 @@ function GetCanvasWidth() { return canvas.clientWidth; }
       if (Module['extraStackTrace']) js += '\n' + Module['extraStackTrace']();
       return demangleAll(js);
     }
-
-  /** @type {function(...*):?} */
-  function _GetTouchPointsCount(
-  ) {
-  err('missing function: GetTouchPointsCount'); abort(-1);
-  }
-
-  /** @type {function(...*):?} */
-  function _MatrixNormalize(
-  ) {
-  err('missing function: MatrixNormalize'); abort(-1);
-  }
 
   function ___assert_fail(condition, filename, line, func) {
       abort('Assertion failed: ' + UTF8ToString(condition) + ', at: ' + [filename ? UTF8ToString(filename) : 'unknown filename', line, func ? UTF8ToString(func) : 'unknown function']);
@@ -4134,891 +4121,6 @@ function GetCanvasWidth() { return canvas.clientWidth; }
   }
   }
 
-  function ___syscall_chmod(path, mode) {
-  try {
-  
-      path = SYSCALLS.getStr(path);
-      FS.chmod(path, mode);
-      return 0;
-    } catch (e) {
-    if (typeof FS == 'undefined' || !(e instanceof FS.ErrnoError)) throw e;
-    return -e.errno;
-  }
-  }
-
-  var SOCKFS = {mount:function(mount) {
-        // If Module['websocket'] has already been defined (e.g. for configuring
-        // the subprotocol/url) use that, if not initialise it to a new object.
-        Module['websocket'] = (Module['websocket'] && 
-                               ('object' === typeof Module['websocket'])) ? Module['websocket'] : {};
-  
-        // Add the Event registration mechanism to the exported websocket configuration
-        // object so we can register network callbacks from native JavaScript too.
-        // For more documentation see system/include/emscripten/emscripten.h
-        Module['websocket']._callbacks = {};
-        Module['websocket']['on'] = /** @this{Object} */ function(event, callback) {
-          if ('function' === typeof callback) {
-            this._callbacks[event] = callback;
-          }
-          return this;
-        };
-  
-        Module['websocket'].emit = /** @this{Object} */ function(event, param) {
-          if ('function' === typeof this._callbacks[event]) {
-            this._callbacks[event].call(this, param);
-          }
-        };
-  
-        // If debug is enabled register simple default logging callbacks for each Event.
-  
-        return FS.createNode(null, '/', 16384 | 511 /* 0777 */, 0);
-      },createSocket:function(family, type, protocol) {
-        type &= ~526336; // Some applications may pass it; it makes no sense for a single process.
-        var streaming = type == 1;
-        if (streaming && protocol && protocol != 6) {
-          throw new FS.ErrnoError(66); // if SOCK_STREAM, must be tcp or 0.
-        }
-  
-        // create our internal socket structure
-        var sock = {
-          family: family,
-          type: type,
-          protocol: protocol,
-          server: null,
-          error: null, // Used in getsockopt for SOL_SOCKET/SO_ERROR test
-          peers: {},
-          pending: [],
-          recv_queue: [],
-          sock_ops: SOCKFS.websocket_sock_ops
-        };
-  
-        // create the filesystem node to store the socket structure
-        var name = SOCKFS.nextname();
-        var node = FS.createNode(SOCKFS.root, name, 49152, 0);
-        node.sock = sock;
-  
-        // and the wrapping stream that enables library functions such
-        // as read and write to indirectly interact with the socket
-        var stream = FS.createStream({
-          path: name,
-          node: node,
-          flags: 2,
-          seekable: false,
-          stream_ops: SOCKFS.stream_ops
-        });
-  
-        // map the new stream to the socket structure (sockets have a 1:1
-        // relationship with a stream)
-        sock.stream = stream;
-  
-        return sock;
-      },getSocket:function(fd) {
-        var stream = FS.getStream(fd);
-        if (!stream || !FS.isSocket(stream.node.mode)) {
-          return null;
-        }
-        return stream.node.sock;
-      },stream_ops:{poll:function(stream) {
-          var sock = stream.node.sock;
-          return sock.sock_ops.poll(sock);
-        },ioctl:function(stream, request, varargs) {
-          var sock = stream.node.sock;
-          return sock.sock_ops.ioctl(sock, request, varargs);
-        },read:function(stream, buffer, offset, length, position /* ignored */) {
-          var sock = stream.node.sock;
-          var msg = sock.sock_ops.recvmsg(sock, length);
-          if (!msg) {
-            // socket is closed
-            return 0;
-          }
-          buffer.set(msg.buffer, offset);
-          return msg.buffer.length;
-        },write:function(stream, buffer, offset, length, position /* ignored */) {
-          var sock = stream.node.sock;
-          return sock.sock_ops.sendmsg(sock, buffer, offset, length);
-        },close:function(stream) {
-          var sock = stream.node.sock;
-          sock.sock_ops.close(sock);
-        }},nextname:function() {
-        if (!SOCKFS.nextname.current) {
-          SOCKFS.nextname.current = 0;
-        }
-        return 'socket[' + (SOCKFS.nextname.current++) + ']';
-      },websocket_sock_ops:{createPeer:function(sock, addr, port) {
-          var ws;
-  
-          if (typeof addr == 'object') {
-            ws = addr;
-            addr = null;
-            port = null;
-          }
-  
-          if (ws) {
-            // for sockets that've already connected (e.g. we're the server)
-            // we can inspect the _socket property for the address
-            if (ws._socket) {
-              addr = ws._socket.remoteAddress;
-              port = ws._socket.remotePort;
-            }
-            // if we're just now initializing a connection to the remote,
-            // inspect the url property
-            else {
-              var result = /ws[s]?:\/\/([^:]+):(\d+)/.exec(ws.url);
-              if (!result) {
-                throw new Error('WebSocket URL must be in the format ws(s)://address:port');
-              }
-              addr = result[1];
-              port = parseInt(result[2], 10);
-            }
-          } else {
-            // create the actual websocket object and connect
-            try {
-              // runtimeConfig gets set to true if WebSocket runtime configuration is available.
-              var runtimeConfig = (Module['websocket'] && ('object' === typeof Module['websocket']));
-  
-              // The default value is 'ws://' the replace is needed because the compiler replaces '//' comments with '#'
-              // comments without checking context, so we'd end up with ws:#, the replace swaps the '#' for '//' again.
-              var url = 'ws:#'.replace('#', '//');
-  
-              if (runtimeConfig) {
-                if ('string' === typeof Module['websocket']['url']) {
-                  url = Module['websocket']['url']; // Fetch runtime WebSocket URL config.
-                }
-              }
-  
-              if (url === 'ws://' || url === 'wss://') { // Is the supplied URL config just a prefix, if so complete it.
-                var parts = addr.split('/');
-                url = url + parts[0] + ":" + port + "/" + parts.slice(1).join('/');
-              }
-  
-              // Make the WebSocket subprotocol (Sec-WebSocket-Protocol) default to binary if no configuration is set.
-              var subProtocols = 'binary'; // The default value is 'binary'
-  
-              if (runtimeConfig) {
-                if ('string' === typeof Module['websocket']['subprotocol']) {
-                  subProtocols = Module['websocket']['subprotocol']; // Fetch runtime WebSocket subprotocol config.
-                }
-              }
-  
-              // The default WebSocket options
-              var opts = undefined;
-  
-              if (subProtocols !== 'null') {
-                // The regex trims the string (removes spaces at the beginning and end, then splits the string by
-                // <any space>,<any space> into an Array. Whitespace removal is important for Websockify and ws.
-                subProtocols = subProtocols.replace(/^ +| +$/g,"").split(/ *, */);
-  
-                opts = subProtocols;
-              }
-  
-              // some webservers (azure) does not support subprotocol header
-              if (runtimeConfig && null === Module['websocket']['subprotocol']) {
-                subProtocols = 'null';
-                opts = undefined;
-              }
-  
-              // If node we use the ws library.
-              var WebSocketConstructor;
-              if (ENVIRONMENT_IS_NODE) {
-                WebSocketConstructor = /** @type{(typeof WebSocket)} */(require('ws'));
-              } else
-              {
-                WebSocketConstructor = WebSocket;
-              }
-              ws = new WebSocketConstructor(url, opts);
-              ws.binaryType = 'arraybuffer';
-            } catch (e) {
-              throw new FS.ErrnoError(23);
-            }
-          }
-  
-          var peer = {
-            addr: addr,
-            port: port,
-            socket: ws,
-            dgram_send_queue: []
-          };
-  
-          SOCKFS.websocket_sock_ops.addPeer(sock, peer);
-          SOCKFS.websocket_sock_ops.handlePeerEvents(sock, peer);
-  
-          // if this is a bound dgram socket, send the port number first to allow
-          // us to override the ephemeral port reported to us by remotePort on the
-          // remote end.
-          if (sock.type === 2 && typeof sock.sport != 'undefined') {
-            peer.dgram_send_queue.push(new Uint8Array([
-                255, 255, 255, 255,
-                'p'.charCodeAt(0), 'o'.charCodeAt(0), 'r'.charCodeAt(0), 't'.charCodeAt(0),
-                ((sock.sport & 0xff00) >> 8) , (sock.sport & 0xff)
-            ]));
-          }
-  
-          return peer;
-        },getPeer:function(sock, addr, port) {
-          return sock.peers[addr + ':' + port];
-        },addPeer:function(sock, peer) {
-          sock.peers[peer.addr + ':' + peer.port] = peer;
-        },removePeer:function(sock, peer) {
-          delete sock.peers[peer.addr + ':' + peer.port];
-        },handlePeerEvents:function(sock, peer) {
-          var first = true;
-  
-          var handleOpen = function () {
-  
-            Module['websocket'].emit('open', sock.stream.fd);
-  
-            try {
-              var queued = peer.dgram_send_queue.shift();
-              while (queued) {
-                peer.socket.send(queued);
-                queued = peer.dgram_send_queue.shift();
-              }
-            } catch (e) {
-              // not much we can do here in the way of proper error handling as we've already
-              // lied and said this data was sent. shut it down.
-              peer.socket.close();
-            }
-          };
-  
-          function handleMessage(data) {
-            if (typeof data == 'string') {
-              var encoder = new TextEncoder(); // should be utf-8
-              data = encoder.encode(data); // make a typed array from the string
-            } else {
-              assert(data.byteLength !== undefined); // must receive an ArrayBuffer
-              if (data.byteLength == 0) {
-                // An empty ArrayBuffer will emit a pseudo disconnect event
-                // as recv/recvmsg will return zero which indicates that a socket
-                // has performed a shutdown although the connection has not been disconnected yet.
-                return;
-              } else {
-                data = new Uint8Array(data); // make a typed array view on the array buffer
-              }
-            }
-  
-            // if this is the port message, override the peer's port with it
-            var wasfirst = first;
-            first = false;
-            if (wasfirst &&
-                data.length === 10 &&
-                data[0] === 255 && data[1] === 255 && data[2] === 255 && data[3] === 255 &&
-                data[4] === 'p'.charCodeAt(0) && data[5] === 'o'.charCodeAt(0) && data[6] === 'r'.charCodeAt(0) && data[7] === 't'.charCodeAt(0)) {
-              // update the peer's port and it's key in the peer map
-              var newport = ((data[8] << 8) | data[9]);
-              SOCKFS.websocket_sock_ops.removePeer(sock, peer);
-              peer.port = newport;
-              SOCKFS.websocket_sock_ops.addPeer(sock, peer);
-              return;
-            }
-  
-            sock.recv_queue.push({ addr: peer.addr, port: peer.port, data: data });
-            Module['websocket'].emit('message', sock.stream.fd);
-          };
-  
-          if (ENVIRONMENT_IS_NODE) {
-            peer.socket.on('open', handleOpen);
-            peer.socket.on('message', function(data, isBinary) {
-              if (!isBinary) {
-                return;
-              }
-              handleMessage((new Uint8Array(data)).buffer); // copy from node Buffer -> ArrayBuffer
-            });
-            peer.socket.on('close', function() {
-              Module['websocket'].emit('close', sock.stream.fd);
-            });
-            peer.socket.on('error', function(error) {
-              // Although the ws library may pass errors that may be more descriptive than
-              // ECONNREFUSED they are not necessarily the expected error code e.g. 
-              // ENOTFOUND on getaddrinfo seems to be node.js specific, so using ECONNREFUSED
-              // is still probably the most useful thing to do.
-              sock.error = 14; // Used in getsockopt for SOL_SOCKET/SO_ERROR test.
-              Module['websocket'].emit('error', [sock.stream.fd, sock.error, 'ECONNREFUSED: Connection refused']);
-              // don't throw
-            });
-          } else {
-            peer.socket.onopen = handleOpen;
-            peer.socket.onclose = function() {
-              Module['websocket'].emit('close', sock.stream.fd);
-            };
-            peer.socket.onmessage = function peer_socket_onmessage(event) {
-              handleMessage(event.data);
-            };
-            peer.socket.onerror = function(error) {
-              // The WebSocket spec only allows a 'simple event' to be thrown on error,
-              // so we only really know as much as ECONNREFUSED.
-              sock.error = 14; // Used in getsockopt for SOL_SOCKET/SO_ERROR test.
-              Module['websocket'].emit('error', [sock.stream.fd, sock.error, 'ECONNREFUSED: Connection refused']);
-            };
-          }
-        },poll:function(sock) {
-          if (sock.type === 1 && sock.server) {
-            // listen sockets should only say they're available for reading
-            // if there are pending clients.
-            return sock.pending.length ? (64 | 1) : 0;
-          }
-  
-          var mask = 0;
-          var dest = sock.type === 1 ?  // we only care about the socket state for connection-based sockets
-            SOCKFS.websocket_sock_ops.getPeer(sock, sock.daddr, sock.dport) :
-            null;
-  
-          if (sock.recv_queue.length ||
-              !dest ||  // connection-less sockets are always ready to read
-              (dest && dest.socket.readyState === dest.socket.CLOSING) ||
-              (dest && dest.socket.readyState === dest.socket.CLOSED)) {  // let recv return 0 once closed
-            mask |= (64 | 1);
-          }
-  
-          if (!dest ||  // connection-less sockets are always ready to write
-              (dest && dest.socket.readyState === dest.socket.OPEN)) {
-            mask |= 4;
-          }
-  
-          if ((dest && dest.socket.readyState === dest.socket.CLOSING) ||
-              (dest && dest.socket.readyState === dest.socket.CLOSED)) {
-            mask |= 16;
-          }
-  
-          return mask;
-        },ioctl:function(sock, request, arg) {
-          switch (request) {
-            case 21531:
-              var bytes = 0;
-              if (sock.recv_queue.length) {
-                bytes = sock.recv_queue[0].data.length;
-              }
-              HEAP32[((arg)>>2)] = bytes;
-              return 0;
-            default:
-              return 28;
-          }
-        },close:function(sock) {
-          // if we've spawned a listen server, close it
-          if (sock.server) {
-            try {
-              sock.server.close();
-            } catch (e) {
-            }
-            sock.server = null;
-          }
-          // close any peer connections
-          var peers = Object.keys(sock.peers);
-          for (var i = 0; i < peers.length; i++) {
-            var peer = sock.peers[peers[i]];
-            try {
-              peer.socket.close();
-            } catch (e) {
-            }
-            SOCKFS.websocket_sock_ops.removePeer(sock, peer);
-          }
-          return 0;
-        },bind:function(sock, addr, port) {
-          if (typeof sock.saddr != 'undefined' || typeof sock.sport != 'undefined') {
-            throw new FS.ErrnoError(28);  // already bound
-          }
-          sock.saddr = addr;
-          sock.sport = port;
-          // in order to emulate dgram sockets, we need to launch a listen server when
-          // binding on a connection-less socket
-          // note: this is only required on the server side
-          if (sock.type === 2) {
-            // close the existing server if it exists
-            if (sock.server) {
-              sock.server.close();
-              sock.server = null;
-            }
-            // swallow error operation not supported error that occurs when binding in the
-            // browser where this isn't supported
-            try {
-              sock.sock_ops.listen(sock, 0);
-            } catch (e) {
-              if (!(e instanceof FS.ErrnoError)) throw e;
-              if (e.errno !== 138) throw e;
-            }
-          }
-        },connect:function(sock, addr, port) {
-          if (sock.server) {
-            throw new FS.ErrnoError(138);
-          }
-  
-          // TODO autobind
-          // if (!sock.addr && sock.type == 2) {
-          // }
-  
-          // early out if we're already connected / in the middle of connecting
-          if (typeof sock.daddr != 'undefined' && typeof sock.dport != 'undefined') {
-            var dest = SOCKFS.websocket_sock_ops.getPeer(sock, sock.daddr, sock.dport);
-            if (dest) {
-              if (dest.socket.readyState === dest.socket.CONNECTING) {
-                throw new FS.ErrnoError(7);
-              } else {
-                throw new FS.ErrnoError(30);
-              }
-            }
-          }
-  
-          // add the socket to our peer list and set our
-          // destination address / port to match
-          var peer = SOCKFS.websocket_sock_ops.createPeer(sock, addr, port);
-          sock.daddr = peer.addr;
-          sock.dport = peer.port;
-  
-          // always "fail" in non-blocking mode
-          throw new FS.ErrnoError(26);
-        },listen:function(sock, backlog) {
-          if (!ENVIRONMENT_IS_NODE) {
-            throw new FS.ErrnoError(138);
-          }
-          if (sock.server) {
-             throw new FS.ErrnoError(28);  // already listening
-          }
-          var WebSocketServer = require('ws').Server;
-          var host = sock.saddr;
-          sock.server = new WebSocketServer({
-            host: host,
-            port: sock.sport
-            // TODO support backlog
-          });
-          Module['websocket'].emit('listen', sock.stream.fd); // Send Event with listen fd.
-  
-          sock.server.on('connection', function(ws) {
-            if (sock.type === 1) {
-              var newsock = SOCKFS.createSocket(sock.family, sock.type, sock.protocol);
-  
-              // create a peer on the new socket
-              var peer = SOCKFS.websocket_sock_ops.createPeer(newsock, ws);
-              newsock.daddr = peer.addr;
-              newsock.dport = peer.port;
-  
-              // push to queue for accept to pick up
-              sock.pending.push(newsock);
-              Module['websocket'].emit('connection', newsock.stream.fd);
-            } else {
-              // create a peer on the listen socket so calling sendto
-              // with the listen socket and an address will resolve
-              // to the correct client
-              SOCKFS.websocket_sock_ops.createPeer(sock, ws);
-              Module['websocket'].emit('connection', sock.stream.fd);
-            }
-          });
-          sock.server.on('close', function() {
-            Module['websocket'].emit('close', sock.stream.fd);
-            sock.server = null;
-          });
-          sock.server.on('error', function(error) {
-            // Although the ws library may pass errors that may be more descriptive than
-            // ECONNREFUSED they are not necessarily the expected error code e.g. 
-            // ENOTFOUND on getaddrinfo seems to be node.js specific, so using EHOSTUNREACH
-            // is still probably the most useful thing to do. This error shouldn't
-            // occur in a well written app as errors should get trapped in the compiled
-            // app's own getaddrinfo call.
-            sock.error = 23; // Used in getsockopt for SOL_SOCKET/SO_ERROR test.
-            Module['websocket'].emit('error', [sock.stream.fd, sock.error, 'EHOSTUNREACH: Host is unreachable']);
-            // don't throw
-          });
-        },accept:function(listensock) {
-          if (!listensock.server || !listensock.pending.length) {
-            throw new FS.ErrnoError(28);
-          }
-          var newsock = listensock.pending.shift();
-          newsock.stream.flags = listensock.stream.flags;
-          return newsock;
-        },getname:function(sock, peer) {
-          var addr, port;
-          if (peer) {
-            if (sock.daddr === undefined || sock.dport === undefined) {
-              throw new FS.ErrnoError(53);
-            }
-            addr = sock.daddr;
-            port = sock.dport;
-          } else {
-            // TODO saddr and sport will be set for bind()'d UDP sockets, but what
-            // should we be returning for TCP sockets that've been connect()'d?
-            addr = sock.saddr || 0;
-            port = sock.sport || 0;
-          }
-          return { addr: addr, port: port };
-        },sendmsg:function(sock, buffer, offset, length, addr, port) {
-          if (sock.type === 2) {
-            // connection-less sockets will honor the message address,
-            // and otherwise fall back to the bound destination address
-            if (addr === undefined || port === undefined) {
-              addr = sock.daddr;
-              port = sock.dport;
-            }
-            // if there was no address to fall back to, error out
-            if (addr === undefined || port === undefined) {
-              throw new FS.ErrnoError(17);
-            }
-          } else {
-            // connection-based sockets will only use the bound
-            addr = sock.daddr;
-            port = sock.dport;
-          }
-  
-          // find the peer for the destination address
-          var dest = SOCKFS.websocket_sock_ops.getPeer(sock, addr, port);
-  
-          // early out if not connected with a connection-based socket
-          if (sock.type === 1) {
-            if (!dest || dest.socket.readyState === dest.socket.CLOSING || dest.socket.readyState === dest.socket.CLOSED) {
-              throw new FS.ErrnoError(53);
-            } else if (dest.socket.readyState === dest.socket.CONNECTING) {
-              throw new FS.ErrnoError(6);
-            }
-          }
-  
-          // create a copy of the incoming data to send, as the WebSocket API
-          // doesn't work entirely with an ArrayBufferView, it'll just send
-          // the entire underlying buffer
-          if (ArrayBuffer.isView(buffer)) {
-            offset += buffer.byteOffset;
-            buffer = buffer.buffer;
-          }
-  
-          var data;
-            data = buffer.slice(offset, offset + length);
-  
-          // if we're emulating a connection-less dgram socket and don't have
-          // a cached connection, queue the buffer to send upon connect and
-          // lie, saying the data was sent now.
-          if (sock.type === 2) {
-            if (!dest || dest.socket.readyState !== dest.socket.OPEN) {
-              // if we're not connected, open a new connection
-              if (!dest || dest.socket.readyState === dest.socket.CLOSING || dest.socket.readyState === dest.socket.CLOSED) {
-                dest = SOCKFS.websocket_sock_ops.createPeer(sock, addr, port);
-              }
-              dest.dgram_send_queue.push(data);
-              return length;
-            }
-          }
-  
-          try {
-            // send the actual data
-            dest.socket.send(data);
-            return length;
-          } catch (e) {
-            throw new FS.ErrnoError(28);
-          }
-        },recvmsg:function(sock, length) {
-          // http://pubs.opengroup.org/onlinepubs/7908799/xns/recvmsg.html
-          if (sock.type === 1 && sock.server) {
-            // tcp servers should not be recv()'ing on the listen socket
-            throw new FS.ErrnoError(53);
-          }
-  
-          var queued = sock.recv_queue.shift();
-          if (!queued) {
-            if (sock.type === 1) {
-              var dest = SOCKFS.websocket_sock_ops.getPeer(sock, sock.daddr, sock.dport);
-  
-              if (!dest) {
-                // if we have a destination address but are not connected, error out
-                throw new FS.ErrnoError(53);
-              }
-              else if (dest.socket.readyState === dest.socket.CLOSING || dest.socket.readyState === dest.socket.CLOSED) {
-                // return null if the socket has closed
-                return null;
-              }
-              else {
-                // else, our socket is in a valid state but truly has nothing available
-                throw new FS.ErrnoError(6);
-              }
-            } else {
-              throw new FS.ErrnoError(6);
-            }
-          }
-  
-          // queued.data will be an ArrayBuffer if it's unadulterated, but if it's
-          // requeued TCP data it'll be an ArrayBufferView
-          var queuedLength = queued.data.byteLength || queued.data.length;
-          var queuedOffset = queued.data.byteOffset || 0;
-          var queuedBuffer = queued.data.buffer || queued.data;
-          var bytesRead = Math.min(length, queuedLength);
-          var res = {
-            buffer: new Uint8Array(queuedBuffer, queuedOffset, bytesRead),
-            addr: queued.addr,
-            port: queued.port
-          };
-  
-          // push back any unread data for TCP connections
-          if (sock.type === 1 && bytesRead < queuedLength) {
-            var bytesRemaining = queuedLength - bytesRead;
-            queued.data = new Uint8Array(queuedBuffer, queuedOffset + bytesRead, bytesRemaining);
-            sock.recv_queue.unshift(queued);
-          }
-  
-          return res;
-        }}};
-  function getSocketFromFD(fd) {
-      var socket = SOCKFS.getSocket(fd);
-      if (!socket) throw new FS.ErrnoError(8);
-      return socket;
-    }
-  
-  function setErrNo(value) {
-      HEAP32[((___errno_location())>>2)] = value;
-      return value;
-    }
-  var Sockets = {BUFFER_SIZE:10240,MAX_BUFFER_SIZE:10485760,nextFd:1,fds:{},nextport:1,maxport:65535,peer:null,connections:{},portmap:{},localAddr:4261412874,addrPool:[33554442,50331658,67108874,83886090,100663306,117440522,134217738,150994954,167772170,184549386,201326602,218103818,234881034]};
-  
-  function inetNtop4(addr) {
-      return (addr & 0xff) + '.' + ((addr >> 8) & 0xff) + '.' + ((addr >> 16) & 0xff) + '.' + ((addr >> 24) & 0xff)
-    }
-  
-  function inetNtop6(ints) {
-      //  ref:  http://www.ietf.org/rfc/rfc2373.txt - section 2.5.4
-      //  Format for IPv4 compatible and mapped  128-bit IPv6 Addresses
-      //  128-bits are split into eight 16-bit words
-      //  stored in network byte order (big-endian)
-      //  |                80 bits               | 16 |      32 bits        |
-      //  +-----------------------------------------------------------------+
-      //  |               10 bytes               |  2 |      4 bytes        |
-      //  +--------------------------------------+--------------------------+
-      //  +               5 words                |  1 |      2 words        |
-      //  +--------------------------------------+--------------------------+
-      //  |0000..............................0000|0000|    IPv4 ADDRESS     | (compatible)
-      //  +--------------------------------------+----+---------------------+
-      //  |0000..............................0000|FFFF|    IPv4 ADDRESS     | (mapped)
-      //  +--------------------------------------+----+---------------------+
-      var str = "";
-      var word = 0;
-      var longest = 0;
-      var lastzero = 0;
-      var zstart = 0;
-      var len = 0;
-      var i = 0;
-      var parts = [
-        ints[0] & 0xffff,
-        (ints[0] >> 16),
-        ints[1] & 0xffff,
-        (ints[1] >> 16),
-        ints[2] & 0xffff,
-        (ints[2] >> 16),
-        ints[3] & 0xffff,
-        (ints[3] >> 16)
-      ];
-  
-      // Handle IPv4-compatible, IPv4-mapped, loopback and any/unspecified addresses
-  
-      var hasipv4 = true;
-      var v4part = "";
-      // check if the 10 high-order bytes are all zeros (first 5 words)
-      for (i = 0; i < 5; i++) {
-        if (parts[i] !== 0) { hasipv4 = false; break; }
-      }
-  
-      if (hasipv4) {
-        // low-order 32-bits store an IPv4 address (bytes 13 to 16) (last 2 words)
-        v4part = inetNtop4(parts[6] | (parts[7] << 16));
-        // IPv4-mapped IPv6 address if 16-bit value (bytes 11 and 12) == 0xFFFF (6th word)
-        if (parts[5] === -1) {
-          str = "::ffff:";
-          str += v4part;
-          return str;
-        }
-        // IPv4-compatible IPv6 address if 16-bit value (bytes 11 and 12) == 0x0000 (6th word)
-        if (parts[5] === 0) {
-          str = "::";
-          //special case IPv6 addresses
-          if (v4part === "0.0.0.0") v4part = ""; // any/unspecified address
-          if (v4part === "0.0.0.1") v4part = "1";// loopback address
-          str += v4part;
-          return str;
-        }
-      }
-  
-      // Handle all other IPv6 addresses
-  
-      // first run to find the longest contiguous zero words
-      for (word = 0; word < 8; word++) {
-        if (parts[word] === 0) {
-          if (word - lastzero > 1) {
-            len = 0;
-          }
-          lastzero = word;
-          len++;
-        }
-        if (len > longest) {
-          longest = len;
-          zstart = word - longest + 1;
-        }
-      }
-  
-      for (word = 0; word < 8; word++) {
-        if (longest > 1) {
-          // compress contiguous zeros - to produce "::"
-          if (parts[word] === 0 && word >= zstart && word < (zstart + longest) ) {
-            if (word === zstart) {
-              str += ":";
-              if (zstart === 0) str += ":"; //leading zeros case
-            }
-            continue;
-          }
-        }
-        // converts 16-bit words from big-endian to little-endian before converting to hex string
-        str += Number(_ntohs(parts[word] & 0xffff)).toString(16);
-        str += word < 7 ? ":" : "";
-      }
-      return str;
-    }
-  function readSockaddr(sa, salen) {
-      // family / port offsets are common to both sockaddr_in and sockaddr_in6
-      var family = HEAP16[((sa)>>1)];
-      var port = _ntohs(HEAPU16[(((sa)+(2))>>1)]);
-      var addr;
-  
-      switch (family) {
-        case 2:
-          if (salen !== 16) {
-            return { errno: 28 };
-          }
-          addr = HEAP32[(((sa)+(4))>>2)];
-          addr = inetNtop4(addr);
-          break;
-        case 10:
-          if (salen !== 28) {
-            return { errno: 28 };
-          }
-          addr = [
-            HEAP32[(((sa)+(8))>>2)],
-            HEAP32[(((sa)+(12))>>2)],
-            HEAP32[(((sa)+(16))>>2)],
-            HEAP32[(((sa)+(20))>>2)]
-          ];
-          addr = inetNtop6(addr);
-          break;
-        default:
-          return { errno: 5 };
-      }
-  
-      return { family: family, addr: addr, port: port };
-    }
-  
-  function inetPton4(str) {
-      var b = str.split('.');
-      for (var i = 0; i < 4; i++) {
-        var tmp = Number(b[i]);
-        if (isNaN(tmp)) return null;
-        b[i] = tmp;
-      }
-      return (b[0] | (b[1] << 8) | (b[2] << 16) | (b[3] << 24)) >>> 0;
-    }
-  
-  /** @suppress {checkTypes} */
-  function jstoi_q(str) {
-      return parseInt(str);
-    }
-  function inetPton6(str) {
-      var words;
-      var w, offset, z, i;
-      /* http://home.deds.nl/~aeron/regex/ */
-      var valid6regx = /^((?=.*::)(?!.*::.+::)(::)?([\dA-F]{1,4}:(:|\b)|){5}|([\dA-F]{1,4}:){6})((([\dA-F]{1,4}((?!\3)::|:\b|$))|(?!\2\3)){2}|(((2[0-4]|1\d|[1-9])?\d|25[0-5])\.?\b){4})$/i
-      var parts = [];
-      if (!valid6regx.test(str)) {
-        return null;
-      }
-      if (str === "::") {
-        return [0, 0, 0, 0, 0, 0, 0, 0];
-      }
-      // Z placeholder to keep track of zeros when splitting the string on ":"
-      if (str.startsWith("::")) {
-        str = str.replace("::", "Z:"); // leading zeros case
-      } else {
-        str = str.replace("::", ":Z:");
-      }
-  
-      if (str.indexOf(".") > 0) {
-        // parse IPv4 embedded stress
-        str = str.replace(new RegExp('[.]', 'g'), ":");
-        words = str.split(":");
-        words[words.length-4] = jstoi_q(words[words.length-4]) + jstoi_q(words[words.length-3])*256;
-        words[words.length-3] = jstoi_q(words[words.length-2]) + jstoi_q(words[words.length-1])*256;
-        words = words.slice(0, words.length-2);
-      } else {
-        words = str.split(":");
-      }
-  
-      offset = 0; z = 0;
-      for (w=0; w < words.length; w++) {
-        if (typeof words[w] == 'string') {
-          if (words[w] === 'Z') {
-            // compressed zeros - write appropriate number of zero words
-            for (z = 0; z < (8 - words.length+1); z++) {
-              parts[w+z] = 0;
-            }
-            offset = z-1;
-          } else {
-            // parse hex to field to 16-bit value and write it in network byte-order
-            parts[w+offset] = _htons(parseInt(words[w],16));
-          }
-        } else {
-          // parsed IPv4 words
-          parts[w+offset] = words[w];
-        }
-      }
-      return [
-        (parts[1] << 16) | parts[0],
-        (parts[3] << 16) | parts[2],
-        (parts[5] << 16) | parts[4],
-        (parts[7] << 16) | parts[6]
-      ];
-    }
-  var DNS = {address_map:{id:1,addrs:{},names:{}},lookup_name:function (name) {
-        // If the name is already a valid ipv4 / ipv6 address, don't generate a fake one.
-        var res = inetPton4(name);
-        if (res !== null) {
-          return name;
-        }
-        res = inetPton6(name);
-        if (res !== null) {
-          return name;
-        }
-  
-        // See if this name is already mapped.
-        var addr;
-  
-        if (DNS.address_map.addrs[name]) {
-          addr = DNS.address_map.addrs[name];
-        } else {
-          var id = DNS.address_map.id++;
-          assert(id < 65535, 'exceeded max address mappings of 65535');
-  
-          addr = '172.29.' + (id & 0xff) + '.' + (id & 0xff00);
-  
-          DNS.address_map.names[addr] = name;
-          DNS.address_map.addrs[name] = addr;
-        }
-  
-        return addr;
-      },lookup_addr:function (addr) {
-        if (DNS.address_map.names[addr]) {
-          return DNS.address_map.names[addr];
-        }
-  
-        return null;
-      }};
-  /** @param {boolean=} allowNull */
-  function getSocketAddress(addrp, addrlen, allowNull) {
-      if (allowNull && addrp === 0) return null;
-      var info = readSockaddr(addrp, addrlen);
-      if (info.errno) throw new FS.ErrnoError(info.errno);
-      info.addr = DNS.lookup_addr(info.addr) || info.addr;
-      return info;
-    }
-  function ___syscall_connect(fd, addr, addrlen) {
-  try {
-  
-      var sock = getSocketFromFD(fd);
-      var info = getSocketAddress(addr, addrlen);
-      sock.sock_ops.connect(sock, info.addr, info.port);
-      return 0;
-    } catch (e) {
-    if (typeof FS == 'undefined' || !(e instanceof FS.ErrnoError)) throw e;
-    return -e.errno;
-  }
-  }
-
   function ___syscall_faccessat(dirfd, path, amode, flags) {
   try {
   
@@ -5051,17 +4153,10 @@ function GetCanvasWidth() { return canvas.clientWidth; }
       return 0; // your advice is important to us (but we can't use it)
     }
 
-  function ___syscall_fchmod(fd, mode) {
-  try {
-  
-      FS.fchmod(fd, mode);
-      return 0;
-    } catch (e) {
-    if (typeof FS == 'undefined' || !(e instanceof FS.ErrnoError)) throw e;
-    return -e.errno;
-  }
-  }
-
+  function setErrNo(value) {
+      HEAP32[((___errno_location())>>2)] = value;
+      return value;
+    }
   function ___syscall_fcntl64(fd, cmd, varargs) {
   SYSCALLS.varargs = varargs;
   try {
@@ -5311,23 +4406,6 @@ function GetCanvasWidth() { return canvas.clientWidth; }
   }
   }
 
-  function ___syscall_mkdirat(dirfd, path, mode) {
-  try {
-  
-      path = SYSCALLS.getStr(path);
-      path = SYSCALLS.calculateAt(dirfd, path);
-      // remove a trailing slash, if one - /a/b/ has basename of '', but
-      // we want to create b in the context of this function
-      path = PATH.normalize(path);
-      if (path[path.length-1] === '/') path = path.substr(0, path.length-1);
-      FS.mkdir(path, mode, 0);
-      return 0;
-    } catch (e) {
-    if (typeof FS == 'undefined' || !(e instanceof FS.ErrnoError)) throw e;
-    return -e.errno;
-  }
-  }
-
   function ___syscall_newfstatat(dirfd, path, buf, flags) {
   try {
   
@@ -5378,80 +4456,11 @@ function GetCanvasWidth() { return canvas.clientWidth; }
   }
   }
 
-  function ___syscall_renameat(olddirfd, oldpath, newdirfd, newpath) {
-  try {
-  
-      oldpath = SYSCALLS.getStr(oldpath);
-      newpath = SYSCALLS.getStr(newpath);
-      oldpath = SYSCALLS.calculateAt(olddirfd, oldpath);
-      newpath = SYSCALLS.calculateAt(newdirfd, newpath);
-      FS.rename(oldpath, newpath);
-      return 0;
-    } catch (e) {
-    if (typeof FS == 'undefined' || !(e instanceof FS.ErrnoError)) throw e;
-    return -e.errno;
-  }
-  }
-
-  function ___syscall_rmdir(path) {
-  try {
-  
-      path = SYSCALLS.getStr(path);
-      FS.rmdir(path);
-      return 0;
-    } catch (e) {
-    if (typeof FS == 'undefined' || !(e instanceof FS.ErrnoError)) throw e;
-    return -e.errno;
-  }
-  }
-
-  function ___syscall_sendto(fd, message, length, flags, addr, addr_len) {
-  try {
-  
-      var sock = getSocketFromFD(fd);
-      var dest = getSocketAddress(addr, addr_len, true);
-      if (!dest) {
-        // send, no address provided
-        return FS.write(sock.stream, HEAP8,message, length);
-      } else {
-        // sendto an address
-        return sock.sock_ops.sendmsg(sock, HEAP8,message, length, dest.addr, dest.port);
-      }
-    } catch (e) {
-    if (typeof FS == 'undefined' || !(e instanceof FS.ErrnoError)) throw e;
-    return -e.errno;
-  }
-  }
-
-  function ___syscall_socket(domain, type, protocol) {
-  try {
-  
-      var sock = SOCKFS.createSocket(domain, type, protocol);
-      return sock.stream.fd;
-    } catch (e) {
-    if (typeof FS == 'undefined' || !(e instanceof FS.ErrnoError)) throw e;
-    return -e.errno;
-  }
-  }
-
   function ___syscall_stat64(path, buf) {
   try {
   
       path = SYSCALLS.getStr(path);
       return SYSCALLS.doStat(FS.stat, path, buf);
-    } catch (e) {
-    if (typeof FS == 'undefined' || !(e instanceof FS.ErrnoError)) throw e;
-    return -e.errno;
-  }
-  }
-
-  function ___syscall_symlink(target, linkpath) {
-  try {
-  
-      target = SYSCALLS.getStr(target);
-      linkpath = SYSCALLS.getStr(linkpath);
-      FS.symlink(target, linkpath);
-      return 0;
     } catch (e) {
     if (typeof FS == 'undefined' || !(e instanceof FS.ErrnoError)) throw e;
     return -e.errno;
@@ -5477,38 +4486,6 @@ function GetCanvasWidth() { return canvas.clientWidth; }
   }
   }
 
-  function ___syscall_utimensat(dirfd, path, times, flags) {
-  try {
-  
-      path = SYSCALLS.getStr(path);
-      path = SYSCALLS.calculateAt(dirfd, path, true);
-      if (!times) {
-        var atime = Date.now();
-        var mtime = atime;
-      } else {
-        var seconds = HEAP32[((times)>>2)];
-        var nanoseconds = HEAP32[(((times)+(4))>>2)];
-        atime = (seconds*1000) + (nanoseconds/(1000*1000));
-        times += 8;
-        seconds = HEAP32[((times)>>2)];
-        nanoseconds = HEAP32[(((times)+(4))>>2)];
-        mtime = (seconds*1000) + (nanoseconds/(1000*1000));
-      }
-      FS.utime(path, atime, mtime);
-      return 0;
-    } catch (e) {
-    if (typeof FS == 'undefined' || !(e instanceof FS.ErrnoError)) throw e;
-    return -e.errno;
-  }
-  }
-
-  function __dlinit(main_dso_handle) {}
-
-  var dlopenMissingError =  'To use dlopen, you need enable dynamic linking, see https://github.com/emscripten-core/emscripten/wiki/Linking';
-  function __dlopen_js(filename, flag) {
-      abort(dlopenMissingError);
-    }
-
   function __emscripten_date_now() {
       return Date.now();
     }
@@ -5516,20 +4493,6 @@ function GetCanvasWidth() { return canvas.clientWidth; }
   var nowIsMonotonic = true;;
   function __emscripten_get_now_is_monotonic() {
       return nowIsMonotonic;
-    }
-
-  function __gmtime_js(time, tmPtr) {
-      var date = new Date(HEAP32[((time)>>2)]*1000);
-      HEAP32[((tmPtr)>>2)] = date.getUTCSeconds();
-      HEAP32[(((tmPtr)+(4))>>2)] = date.getUTCMinutes();
-      HEAP32[(((tmPtr)+(8))>>2)] = date.getUTCHours();
-      HEAP32[(((tmPtr)+(12))>>2)] = date.getUTCDate();
-      HEAP32[(((tmPtr)+(16))>>2)] = date.getUTCMonth();
-      HEAP32[(((tmPtr)+(20))>>2)] = date.getUTCFullYear()-1900;
-      HEAP32[(((tmPtr)+(24))>>2)] = date.getUTCDay();
-      var start = Date.UTC(date.getUTCFullYear(), 0, 1, 0, 0, 0, 0);
-      var yday = ((date.getTime() - start) / (1000 * 60 * 60 * 24))|0;
-      HEAP32[(((tmPtr)+(28))>>2)] = yday;
     }
 
   function __localtime_js(time, tmPtr) {
@@ -5563,17 +4526,6 @@ function GetCanvasWidth() { return canvas.clientWidth; }
       var ptr = res.ptr;
       HEAP32[((allocated)>>2)] = res.allocated;
       return ptr;
-    } catch (e) {
-    if (typeof FS == 'undefined' || !(e instanceof FS.ErrnoError)) throw e;
-    return -e.errno;
-  }
-  }
-
-  function __msync_js(addr, len, flags, fd) {
-  try {
-  
-      SYSCALLS.doMsync(addr, FS.getStream(fd), len, flags, 0);
-      return 0;
     } catch (e) {
     if (typeof FS == 'undefined' || !(e instanceof FS.ErrnoError)) throw e;
     return -e.errno;
@@ -6868,6 +5820,11 @@ function GetCanvasWidth() { return canvas.clientWidth; }
       HEAP32[((params)>>2)] = GLctx.getTexParameter(target, pname);
     }
 
+  /** @suppress {checkTypes} */
+  function jstoi_q(str) {
+      return parseInt(str);
+    }
+  
   /** @noinline */
   function webglGetLeftBracePos(name) {
       return name.slice(-1) == ']' && name.lastIndexOf('[');
@@ -7644,23 +6601,6 @@ function GetCanvasWidth() { return canvas.clientWidth; }
       eval(UTF8ToString(ptr));
     }
 
-  function _emscripten_run_script_string(ptr) {
-      var s = eval(UTF8ToString(ptr));
-      if (s == null) {
-        return 0;
-      }
-      s += '';
-      var me = _emscripten_run_script_string;
-      var len = lengthBytesUTF8(s);
-      if (!me.bufferSize || me.bufferSize < len+1) {
-        if (me.bufferSize) _emscripten_builtin_free(me.buffer);
-        me.bufferSize = len+1;
-        me.buffer = _emscripten_builtin_malloc(me.bufferSize);
-      }
-      stringToUTF8(s, me.buffer, me.bufferSize);
-      return me.buffer;
-    }
-
   function _emscripten_sample_gamepad_data() {
       return (JSEvents.lastGamepadState = (navigator.getGamepads ? navigator.getGamepads() : (navigator.webkitGetGamepads ? navigator.webkitGetGamepads() : null)))
         ? 0 : -1;
@@ -8013,27 +6953,6 @@ function GetCanvasWidth() { return canvas.clientWidth; }
   }
   }
 
-  function _fd_fdstat_get(fd, pbuf) {
-  try {
-  
-      var stream = SYSCALLS.getStreamFromFD(fd);
-      // All character devices are terminals (other things a Linux system would
-      // assume is a character device, like the mouse, we have special APIs for).
-      var type = stream.tty ? 2 :
-                 FS.isDir(stream.mode) ? 3 :
-                 FS.isLink(stream.mode) ? 7 :
-                 4;
-      HEAP8[((pbuf)>>0)] = type;
-      // TODO HEAP16[(((pbuf)+(2))>>1)] = ?;
-      // TODO (tempI64 = [?>>>0,(tempDouble=?,(+(Math.abs(tempDouble))) >= 1.0 ? (tempDouble > 0.0 ? ((Math.min((+(Math.floor((tempDouble)/4294967296.0))), 4294967295.0))|0)>>>0 : (~~((+(Math.ceil((tempDouble - +(((~~(tempDouble)))>>>0))/4294967296.0)))))>>>0) : 0)],HEAP32[(((pbuf)+(8))>>2)] = tempI64[0],HEAP32[(((pbuf)+(12))>>2)] = tempI64[1]);
-      // TODO (tempI64 = [?>>>0,(tempDouble=?,(+(Math.abs(tempDouble))) >= 1.0 ? (tempDouble > 0.0 ? ((Math.min((+(Math.floor((tempDouble)/4294967296.0))), 4294967295.0))|0)>>>0 : (~~((+(Math.ceil((tempDouble - +(((~~(tempDouble)))>>>0))/4294967296.0)))))>>>0) : 0)],HEAP32[(((pbuf)+(16))>>2)] = tempI64[0],HEAP32[(((pbuf)+(20))>>2)] = tempI64[1]);
-      return 0;
-    } catch (e) {
-    if (typeof FS == 'undefined' || !(e instanceof FS.ErrnoError)) throw e;
-    return e.errno;
-  }
-  }
-
   /** @param {number=} offset */
   function doReadv(stream, iov, iovcnt, offset) {
       var ret = 0;
@@ -8054,33 +6973,6 @@ function GetCanvasWidth() { return canvas.clientWidth; }
       var offset = convertI32PairToI53Checked(offset_low, offset_high); if (isNaN(offset)) return 61;
       var stream = SYSCALLS.getStreamFromFD(fd)
       var num = doReadv(stream, iov, iovcnt, offset);
-      HEAP32[((pnum)>>2)] = num;
-      return 0;
-    } catch (e) {
-    if (typeof FS == 'undefined' || !(e instanceof FS.ErrnoError)) throw e;
-    return e.errno;
-  }
-  }
-
-  /** @param {number=} offset */
-  function doWritev(stream, iov, iovcnt, offset) {
-      var ret = 0;
-      for (var i = 0; i < iovcnt; i++) {
-        var ptr = HEAPU32[((iov)>>2)];
-        var len = HEAPU32[(((iov)+(4))>>2)];
-        iov += 8;
-        var curr = FS.write(stream, HEAP8,ptr, len, offset);
-        if (curr < 0) return -1;
-        ret += curr;
-      }
-      return ret;
-    }
-  function _fd_pwrite(fd, iov, iovcnt, offset_low, offset_high, pnum) {
-  try {
-  
-      var offset = convertI32PairToI53Checked(offset_low, offset_high); if (isNaN(offset)) return 61;
-      var stream = SYSCALLS.getStreamFromFD(fd)
-      var num = doWritev(stream, iov, iovcnt, offset);
       HEAP32[((pnum)>>2)] = num;
       return 0;
     } catch (e) {
@@ -8117,31 +7009,19 @@ function GetCanvasWidth() { return canvas.clientWidth; }
   }
   }
 
-  function _fd_sync(fd) {
-  try {
-  
-      var stream = SYSCALLS.getStreamFromFD(fd);
-      return Asyncify.handleSleep(function(wakeUp) {
-        var mount = stream.node.mount;
-        if (!mount.type.syncfs) {
-          // We write directly to the file system, so there's nothing to do here.
-          wakeUp(0);
-          return;
-        }
-        mount.type.syncfs(mount, false, function(err) {
-          if (err) {
-            wakeUp(function() { return 29 });
-            return;
-          }
-          wakeUp(0);
-        });
-      });
-    } catch (e) {
-    if (typeof FS == 'undefined' || !(e instanceof FS.ErrnoError)) throw e;
-    return e.errno;
-  }
-  }
-
+  /** @param {number=} offset */
+  function doWritev(stream, iov, iovcnt, offset) {
+      var ret = 0;
+      for (var i = 0; i < iovcnt; i++) {
+        var ptr = HEAPU32[((iov)>>2)];
+        var len = HEAPU32[(((iov)+(4))>>2)];
+        iov += 8;
+        var curr = FS.write(stream, HEAP8,ptr, len, offset);
+        if (curr < 0) return -1;
+        ret += curr;
+      }
+      return ret;
+    }
   function _fd_write(fd, iov, iovcnt, pnum) {
   try {
   
@@ -8314,10 +7194,6 @@ function GetCanvasWidth() { return canvas.clientWidth; }
 
   function _glDepthFunc(x0) { GLctx['depthFunc'](x0) }
 
-  function _glDepthMask(flag) {
-      GLctx.depthMask(!!flag);
-    }
-
   function _glDetachShader(program, shader) {
       GLctx.detachShader(GL.programs[program], GL.shaders[shader]);
     }
@@ -8382,12 +7258,6 @@ function GetCanvasWidth() { return canvas.clientWidth; }
 
   function _glGetAttribLocation(program, name) {
       return GLctx.getAttribLocation(GL.programs[program], UTF8ToString(name));
-    }
-
-  function _glGetError() {
-      var error = GLctx.getError() || GL.lastError;
-      GL.lastError = 0/*GL_NO_ERROR*/;
-      return error;
     }
 
   function _glGetFloatv(name_, p) {
@@ -8579,8 +7449,6 @@ function GetCanvasWidth() { return canvas.clientWidth; }
       }
       return -1;
     }
-
-  function _glLineWidth(x0) { GLctx['lineWidth'](x0) }
 
   function _glLinkProgram(program) {
       program = GL.programs[program];
@@ -10409,10 +9277,6 @@ function GetCanvasWidth() { return canvas.clientWidth; }
       return prevcbfun;
     }
 
-  function _glfwSetCursorPos(winid, x, y) {
-      GLFW.setCursorPos(winid, x, y);
-    }
-
   function _glfwSetCursorPosCallback(winid, cbfun) {
       return GLFW.setCursorPosCallback(winid, cbfun);
     }
@@ -10459,10 +9323,6 @@ function GetCanvasWidth() { return canvas.clientWidth; }
       var win = GLFW.WindowFromId(winid);
       if (!win) return;
       win.shouldClose = value;
-    }
-
-  function _glfwSetWindowSize(winid, width, height) {
-      GLFW.setWindowSize(winid, width, height);
     }
 
   function _glfwSetWindowSizeCallback(winid, cbfun) {
@@ -10602,18 +9462,6 @@ function GetCanvasWidth() { return canvas.clientWidth; }
   function _mono_wasm_typed_array_to_array_ref(
   ) {
   return __dotnet_runtime.__linker_exports.mono_wasm_typed_array_to_array_ref.apply(__dotnet_runtime, arguments)
-  }
-
-  /** @type {function(...*):?} */
-  function _rlDisableStatePointer(
-  ) {
-  err('missing function: rlDisableStatePointer'); abort(-1);
-  }
-
-  /** @type {function(...*):?} */
-  function _rlEnableStatePointer(
-  ) {
-  err('missing function: rlEnableStatePointer'); abort(-1);
   }
 
   function _schedule_background_exec(
@@ -11336,8 +10184,6 @@ function tryParseAsDataURI(filename) {
 var asmLibraryArg = {
   "GetCanvasHeight": GetCanvasHeight,
   "GetCanvasWidth": GetCanvasWidth,
-  "GetTouchPointsCount": _GetTouchPointsCount,
-  "MatrixNormalize": _MatrixNormalize,
   "__assert_fail": ___assert_fail,
   "__cxa_allocate_exception": ___cxa_allocate_exception,
   "__cxa_begin_catch": ___cxa_begin_catch,
@@ -11349,11 +10195,8 @@ var asmLibraryArg = {
   "__cxa_throw": ___cxa_throw,
   "__resumeException": ___resumeException,
   "__syscall_chdir": ___syscall_chdir,
-  "__syscall_chmod": ___syscall_chmod,
-  "__syscall_connect": ___syscall_connect,
   "__syscall_faccessat": ___syscall_faccessat,
   "__syscall_fadvise64": ___syscall_fadvise64,
-  "__syscall_fchmod": ___syscall_fchmod,
   "__syscall_fcntl64": ___syscall_fcntl64,
   "__syscall_fstat64": ___syscall_fstat64,
   "__syscall_fstatfs64": ___syscall_fstatfs64,
@@ -11362,26 +10205,15 @@ var asmLibraryArg = {
   "__syscall_getdents64": ___syscall_getdents64,
   "__syscall_ioctl": ___syscall_ioctl,
   "__syscall_lstat64": ___syscall_lstat64,
-  "__syscall_mkdirat": ___syscall_mkdirat,
   "__syscall_newfstatat": ___syscall_newfstatat,
   "__syscall_openat": ___syscall_openat,
   "__syscall_readlinkat": ___syscall_readlinkat,
-  "__syscall_renameat": ___syscall_renameat,
-  "__syscall_rmdir": ___syscall_rmdir,
-  "__syscall_sendto": ___syscall_sendto,
-  "__syscall_socket": ___syscall_socket,
   "__syscall_stat64": ___syscall_stat64,
-  "__syscall_symlink": ___syscall_symlink,
   "__syscall_unlinkat": ___syscall_unlinkat,
-  "__syscall_utimensat": ___syscall_utimensat,
-  "_dlinit": __dlinit,
-  "_dlopen_js": __dlopen_js,
   "_emscripten_date_now": __emscripten_date_now,
   "_emscripten_get_now_is_monotonic": __emscripten_get_now_is_monotonic,
-  "_gmtime_js": __gmtime_js,
   "_localtime_js": __localtime_js,
   "_mmap_js": __mmap_js,
-  "_msync_js": __msync_js,
   "_munmap_js": __munmap_js,
   "_tzset_js": __tzset_js,
   "abort": _abort,
@@ -11559,7 +10391,6 @@ var asmLibraryArg = {
   "emscripten_request_pointerlock": _emscripten_request_pointerlock,
   "emscripten_resize_heap": _emscripten_resize_heap,
   "emscripten_run_script": _emscripten_run_script,
-  "emscripten_run_script_string": _emscripten_run_script_string,
   "emscripten_sample_gamepad_data": _emscripten_sample_gamepad_data,
   "emscripten_set_click_callback_on_thread": _emscripten_set_click_callback_on_thread,
   "emscripten_set_fullscreenchange_callback_on_thread": _emscripten_set_fullscreenchange_callback_on_thread,
@@ -11574,12 +10405,9 @@ var asmLibraryArg = {
   "environ_sizes_get": _environ_sizes_get,
   "exit": _exit,
   "fd_close": _fd_close,
-  "fd_fdstat_get": _fd_fdstat_get,
   "fd_pread": _fd_pread,
-  "fd_pwrite": _fd_pwrite,
   "fd_read": _fd_read,
   "fd_seek": _fd_seek,
-  "fd_sync": _fd_sync,
   "fd_write": _fd_write,
   "getTempRet0": _getTempRet0,
   "glActiveTexture": _glActiveTexture,
@@ -11609,7 +10437,6 @@ var asmLibraryArg = {
   "glDeleteShader": _glDeleteShader,
   "glDeleteTextures": _glDeleteTextures,
   "glDepthFunc": _glDepthFunc,
-  "glDepthMask": _glDepthMask,
   "glDetachShader": _glDetachShader,
   "glDisable": _glDisable,
   "glDisableVertexAttribArray": _glDisableVertexAttribArray,
@@ -11626,7 +10453,6 @@ var asmLibraryArg = {
   "glGenTextures": _glGenTextures,
   "glGenerateMipmap": _glGenerateMipmap,
   "glGetAttribLocation": _glGetAttribLocation,
-  "glGetError": _glGetError,
   "glGetFloatv": _glGetFloatv,
   "glGetFramebufferAttachmentParameteriv": _glGetFramebufferAttachmentParameteriv,
   "glGetProgramInfoLog": _glGetProgramInfoLog,
@@ -11635,7 +10461,6 @@ var asmLibraryArg = {
   "glGetShaderiv": _glGetShaderiv,
   "glGetString": _glGetString,
   "glGetUniformLocation": _glGetUniformLocation,
-  "glLineWidth": _glLineWidth,
   "glLinkProgram": _glLinkProgram,
   "glPixelStorei": _glPixelStorei,
   "glReadPixels": _glReadPixels,
@@ -11674,7 +10499,6 @@ var asmLibraryArg = {
   "glfwMakeContextCurrent": _glfwMakeContextCurrent,
   "glfwSetCharCallback": _glfwSetCharCallback,
   "glfwSetCursorEnterCallback": _glfwSetCursorEnterCallback,
-  "glfwSetCursorPos": _glfwSetCursorPos,
   "glfwSetCursorPosCallback": _glfwSetCursorPosCallback,
   "glfwSetDropCallback": _glfwSetDropCallback,
   "glfwSetErrorCallback": _glfwSetErrorCallback,
@@ -11684,19 +10508,69 @@ var asmLibraryArg = {
   "glfwSetWindowFocusCallback": _glfwSetWindowFocusCallback,
   "glfwSetWindowIconifyCallback": _glfwSetWindowIconifyCallback,
   "glfwSetWindowShouldClose": _glfwSetWindowShouldClose,
-  "glfwSetWindowSize": _glfwSetWindowSize,
   "glfwSetWindowSizeCallback": _glfwSetWindowSizeCallback,
   "glfwSwapBuffers": _glfwSwapBuffers,
   "glfwSwapInterval": _glfwSwapInterval,
   "glfwTerminate": _glfwTerminate,
   "glfwWindowHint": _glfwWindowHint,
+  "invoke_i": invoke_i,
   "invoke_ii": invoke_ii,
   "invoke_iii": invoke_iii,
   "invoke_iiii": invoke_iiii,
+  "invoke_iiiii": invoke_iiiii,
+  "invoke_iiiiii": invoke_iiiiii,
+  "invoke_iiiiiii": invoke_iiiiiii,
+  "invoke_iiiiiiii": invoke_iiiiiiii,
+  "invoke_iiiiiiiii": invoke_iiiiiiiii,
+  "invoke_iiiiiiijiii": invoke_iiiiiiijiii,
+  "invoke_iiiiiiji": invoke_iiiiiiji,
+  "invoke_iiiiiji": invoke_iiiiiji,
+  "invoke_iiiji": invoke_iiiji,
+  "invoke_iiji": invoke_iiji,
+  "invoke_jii": invoke_jii,
   "invoke_v": invoke_v,
   "invoke_vi": invoke_vi,
   "invoke_vii": invoke_vii,
   "invoke_viii": invoke_viii,
+  "invoke_viiii": invoke_viiii,
+  "invoke_viiiii": invoke_viiiii,
+  "invoke_viiiiii": invoke_viiiiii,
+  "invoke_viiiiiii": invoke_viiiiiii,
+  "invoke_viiiiiiii": invoke_viiiiiiii,
+  "invoke_viiiiiiiii": invoke_viiiiiiiii,
+  "invoke_viiiiiiiiii": invoke_viiiiiiiiii,
+  "invoke_viiiiiiiiiii": invoke_viiiiiiiiiii,
+  "invoke_viiiiiiiiiiii": invoke_viiiiiiiiiiii,
+  "invoke_viiiiiiiiiiiii": invoke_viiiiiiiiiiiii,
+  "invoke_viiiiiiiiiiiiii": invoke_viiiiiiiiiiiiii,
+  "invoke_viiiiiiiiiiiiiii": invoke_viiiiiiiiiiiiiii,
+  "invoke_viiiiiiiiiiiiiiii": invoke_viiiiiiiiiiiiiiii,
+  "invoke_viiiiiiiiiiiiiiiii": invoke_viiiiiiiiiiiiiiiii,
+  "invoke_viiiiiiiiiiiiiiiiii": invoke_viiiiiiiiiiiiiiiiii,
+  "invoke_viiiiiiiiiiiiiiiiiii": invoke_viiiiiiiiiiiiiiiiiii,
+  "invoke_viiiiiiiiiiiiiiiiiiii": invoke_viiiiiiiiiiiiiiiiiiii,
+  "invoke_viiiiiiiiiiiiiiiiiiiii": invoke_viiiiiiiiiiiiiiiiiiiii,
+  "invoke_viiiiiiiiiiiiiiiiiiiiii": invoke_viiiiiiiiiiiiiiiiiiiiii,
+  "invoke_viiiiiiiiiiiiiiiiiiiiiii": invoke_viiiiiiiiiiiiiiiiiiiiiii,
+  "invoke_viiiiiiiiiiiiiiiiiiiiiiii": invoke_viiiiiiiiiiiiiiiiiiiiiiii,
+  "invoke_viiiiiiiiiiiiiiiiiiiiiiiii": invoke_viiiiiiiiiiiiiiiiiiiiiiiii,
+  "invoke_viiiiiiiiiiiiiiiiiiiiiiiiii": invoke_viiiiiiiiiiiiiiiiiiiiiiiiii,
+  "invoke_viiiiiiiiiiiiiiiiiiiiiiiiiii": invoke_viiiiiiiiiiiiiiiiiiiiiiiiiii,
+  "invoke_viiiiiiiiiiiiiiiiiiiiiiiiiiii": invoke_viiiiiiiiiiiiiiiiiiiiiiiiiiii,
+  "invoke_viiiiiiiiiiiiiiiiiiiiiiiiiiiii": invoke_viiiiiiiiiiiiiiiiiiiiiiiiiiiii,
+  "invoke_viiiiiiiiiiiiiiiiiiiiiiiiiiiiii": invoke_viiiiiiiiiiiiiiiiiiiiiiiiiiiiii,
+  "invoke_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiii": invoke_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiii,
+  "invoke_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii": invoke_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii,
+  "invoke_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii": invoke_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii,
+  "invoke_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii": invoke_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii,
+  "invoke_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii": invoke_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii,
+  "invoke_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii": invoke_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii,
+  "invoke_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii": invoke_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii,
+  "invoke_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii": invoke_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii,
+  "invoke_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii": invoke_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii,
+  "invoke_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii": invoke_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii,
+  "invoke_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii": invoke_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii,
+  "invoke_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii": invoke_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii,
   "llvm_eh_typeid_for": _llvm_eh_typeid_for,
   "mono_set_timeout": _mono_set_timeout,
   "mono_wasm_bind_cs_function": _mono_wasm_bind_cs_function,
@@ -11716,8 +10590,6 @@ var asmLibraryArg = {
   "mono_wasm_trace_logger": _mono_wasm_trace_logger,
   "mono_wasm_typed_array_from_ref": _mono_wasm_typed_array_from_ref,
   "mono_wasm_typed_array_to_array_ref": _mono_wasm_typed_array_to_array_ref,
-  "rlDisableStatePointer": _rlDisableStatePointer,
-  "rlEnableStatePointer": _rlEnableStatePointer,
   "schedule_background_exec": _schedule_background_exec,
   "setTempRet0": _setTempRet0,
   "strftime": _strftime
@@ -11739,8 +10611,38 @@ var _ma_device_process_pcm_frames_playback__webaudio = Module["_ma_device_proces
 };
 
 /** @type {function(...*):?} */
+var _mono_aot_DotnetRaylibWasm_get_method = Module["_mono_aot_DotnetRaylibWasm_get_method"] = function() {
+  return (_mono_aot_DotnetRaylibWasm_get_method = Module["_mono_aot_DotnetRaylibWasm_get_method"] = Module["asm"]["mono_aot_DotnetRaylibWasm_get_method"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
 var _memset = Module["_memset"] = function() {
   return (_memset = Module["_memset"] = Module["asm"]["memset"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var _mono_aot_Examples_get_method = Module["_mono_aot_Examples_get_method"] = function() {
+  return (_mono_aot_Examples_get_method = Module["_mono_aot_Examples_get_method"] = Module["asm"]["mono_aot_Examples_get_method"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var _mono_aot_Raylib_cs_get_method = Module["_mono_aot_Raylib_cs_get_method"] = function() {
+  return (_mono_aot_Raylib_cs_get_method = Module["_mono_aot_Raylib_cs_get_method"] = Module["asm"]["mono_aot_Raylib_cs_get_method"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var _mono_aot_corlib_get_method = Module["_mono_aot_corlib_get_method"] = function() {
+  return (_mono_aot_corlib_get_method = Module["_mono_aot_corlib_get_method"] = Module["asm"]["mono_aot_corlib_get_method"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var _mono_aot_System_Private_Uri_get_method = Module["_mono_aot_System_Private_Uri_get_method"] = function() {
+  return (_mono_aot_System_Private_Uri_get_method = Module["_mono_aot_System_Private_Uri_get_method"] = Module["asm"]["mono_aot_System_Private_Uri_get_method"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var _mono_aot_System_Runtime_InteropServices_JavaScript_get_method = Module["_mono_aot_System_Runtime_InteropServices_JavaScript_get_method"] = function() {
+  return (_mono_aot_System_Runtime_InteropServices_JavaScript_get_method = Module["_mono_aot_System_Runtime_InteropServices_JavaScript_get_method"] = Module["asm"]["mono_aot_System_Runtime_InteropServices_JavaScript_get_method"]).apply(null, arguments);
 };
 
 /** @type {function(...*):?} */
@@ -12084,16 +10986,6 @@ var _mono_set_timeout_exec = Module["_mono_set_timeout_exec"] = function() {
 };
 
 /** @type {function(...*):?} */
-var _ntohs = Module["_ntohs"] = function() {
-  return (_ntohs = Module["_ntohs"] = Module["asm"]["ntohs"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
-var _htons = Module["_htons"] = function() {
-  return (_htons = Module["_htons"] = Module["asm"]["htons"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
 var _emscripten_builtin_malloc = Module["_emscripten_builtin_malloc"] = function() {
   return (_emscripten_builtin_malloc = Module["_emscripten_builtin_malloc"] = Module["asm"]["emscripten_builtin_malloc"]).apply(null, arguments);
 };
@@ -12109,6 +11001,11 @@ var _htonl = Module["_htonl"] = function() {
 };
 
 /** @type {function(...*):?} */
+var _htons = Module["_htons"] = function() {
+  return (_htons = Module["_htons"] = Module["asm"]["htons"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
 var _emscripten_builtin_free = Module["_emscripten_builtin_free"] = function() {
   return (_emscripten_builtin_free = Module["_emscripten_builtin_free"] = Module["asm"]["emscripten_builtin_free"]).apply(null, arguments);
 };
@@ -12116,6 +11013,11 @@ var _emscripten_builtin_free = Module["_emscripten_builtin_free"] = function() {
 /** @type {function(...*):?} */
 var _emscripten_builtin_memalign = Module["_emscripten_builtin_memalign"] = function() {
   return (_emscripten_builtin_memalign = Module["_emscripten_builtin_memalign"] = Module["asm"]["emscripten_builtin_memalign"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var _ntohs = Module["_ntohs"] = function() {
+  return (_ntohs = Module["_ntohs"] = Module["asm"]["ntohs"]).apply(null, arguments);
 };
 
 /** @type {function(...*):?} */
@@ -12159,23 +11061,13 @@ var ___cxa_is_pointer_type = Module["___cxa_is_pointer_type"] = function() {
 };
 
 /** @type {function(...*):?} */
-var dynCall_ff = Module["dynCall_ff"] = function() {
-  return (dynCall_ff = Module["dynCall_ff"] = Module["asm"]["dynCall_ff"]).apply(null, arguments);
+var dynCall_v = Module["dynCall_v"] = function() {
+  return (dynCall_v = Module["dynCall_v"] = Module["asm"]["dynCall_v"]).apply(null, arguments);
 };
 
 /** @type {function(...*):?} */
-var dynCall_fff = Module["dynCall_fff"] = function() {
-  return (dynCall_fff = Module["dynCall_fff"] = Module["asm"]["dynCall_fff"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
-var dynCall_iii = Module["dynCall_iii"] = function() {
-  return (dynCall_iii = Module["dynCall_iii"] = Module["asm"]["dynCall_iii"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
-var dynCall_iiii = Module["dynCall_iiii"] = function() {
-  return (dynCall_iiii = Module["dynCall_iiii"] = Module["asm"]["dynCall_iiii"]).apply(null, arguments);
+var dynCall_ii = Module["dynCall_ii"] = function() {
+  return (dynCall_ii = Module["dynCall_ii"] = Module["asm"]["dynCall_ii"]).apply(null, arguments);
 };
 
 /** @type {function(...*):?} */
@@ -12189,73 +11081,18 @@ var dynCall_viii = Module["dynCall_viii"] = function() {
 };
 
 /** @type {function(...*):?} */
-var dynCall_viiiii = Module["dynCall_viiiii"] = function() {
-  return (dynCall_viiiii = Module["dynCall_viiiii"] = Module["asm"]["dynCall_viiiii"]).apply(null, arguments);
+var dynCall_iii = Module["dynCall_iii"] = function() {
+  return (dynCall_iii = Module["dynCall_iii"] = Module["asm"]["dynCall_iii"]).apply(null, arguments);
 };
 
 /** @type {function(...*):?} */
-var dynCall_viiii = Module["dynCall_viiii"] = function() {
-  return (dynCall_viiii = Module["dynCall_viiii"] = Module["asm"]["dynCall_viiii"]).apply(null, arguments);
+var dynCall_iiii = Module["dynCall_iiii"] = function() {
+  return (dynCall_iiii = Module["dynCall_iiii"] = Module["asm"]["dynCall_iiii"]).apply(null, arguments);
 };
 
 /** @type {function(...*):?} */
-var dynCall_vidd = Module["dynCall_vidd"] = function() {
-  return (dynCall_vidd = Module["dynCall_vidd"] = Module["asm"]["dynCall_vidd"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
-var dynCall_ii = Module["dynCall_ii"] = function() {
-  return (dynCall_ii = Module["dynCall_ii"] = Module["asm"]["dynCall_ii"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
-var dynCall_iiiiii = Module["dynCall_iiiiii"] = function() {
-  return (dynCall_iiiiii = Module["dynCall_iiiiii"] = Module["asm"]["dynCall_iiiiii"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
-var dynCall_iiiii = Module["dynCall_iiiii"] = function() {
-  return (dynCall_iiiii = Module["dynCall_iiiii"] = Module["asm"]["dynCall_iiiii"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
-var dynCall_iiiiiii = Module["dynCall_iiiiiii"] = function() {
-  return (dynCall_iiiiiii = Module["dynCall_iiiiiii"] = Module["asm"]["dynCall_iiiiiii"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
-var dynCall_jii = Module["dynCall_jii"] = function() {
-  return (dynCall_jii = Module["dynCall_jii"] = Module["asm"]["dynCall_jii"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
-var dynCall_iiiji = Module["dynCall_iiiji"] = function() {
-  return (dynCall_iiiji = Module["dynCall_iiiji"] = Module["asm"]["dynCall_iiiji"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
-var dynCall_v = Module["dynCall_v"] = function() {
-  return (dynCall_v = Module["dynCall_v"] = Module["asm"]["dynCall_v"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
-var dynCall_vi = Module["dynCall_vi"] = function() {
-  return (dynCall_vi = Module["dynCall_vi"] = Module["asm"]["dynCall_vi"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
-var dynCall_i = Module["dynCall_i"] = function() {
-  return (dynCall_i = Module["dynCall_i"] = Module["asm"]["dynCall_i"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
-var dynCall_viiiiii = Module["dynCall_viiiiii"] = function() {
-  return (dynCall_viiiiii = Module["dynCall_viiiiii"] = Module["asm"]["dynCall_viiiiii"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
-var dynCall_viiiiiii = Module["dynCall_viiiiiii"] = function() {
-  return (dynCall_viiiiiii = Module["dynCall_viiiiiii"] = Module["asm"]["dynCall_viiiiiii"]).apply(null, arguments);
+var dynCall_fffffi = Module["dynCall_fffffi"] = function() {
+  return (dynCall_fffffi = Module["dynCall_fffffi"] = Module["asm"]["dynCall_fffffi"]).apply(null, arguments);
 };
 
 /** @type {function(...*):?} */
@@ -12264,103 +11101,113 @@ var dynCall_viiiiiiii = Module["dynCall_viiiiiiii"] = function() {
 };
 
 /** @type {function(...*):?} */
-var dynCall_viiiiiiiii = Module["dynCall_viiiiiiiii"] = function() {
-  return (dynCall_viiiiiiiii = Module["dynCall_viiiiiiiii"] = Module["asm"]["dynCall_viiiiiiiii"]).apply(null, arguments);
+var dynCall_vi = Module["dynCall_vi"] = function() {
+  return (dynCall_vi = Module["dynCall_vi"] = Module["asm"]["dynCall_vi"]).apply(null, arguments);
 };
 
 /** @type {function(...*):?} */
-var dynCall_viiiiiiiiii = Module["dynCall_viiiiiiiiii"] = function() {
-  return (dynCall_viiiiiiiiii = Module["dynCall_viiiiiiiiii"] = Module["asm"]["dynCall_viiiiiiiiii"]).apply(null, arguments);
+var dynCall_viifi = Module["dynCall_viifi"] = function() {
+  return (dynCall_viifi = Module["dynCall_viifi"] = Module["asm"]["dynCall_viifi"]).apply(null, arguments);
 };
 
 /** @type {function(...*):?} */
-var dynCall_viiiiiiiiiii = Module["dynCall_viiiiiiiiiii"] = function() {
-  return (dynCall_viiiiiiiiiii = Module["dynCall_viiiiiiiiiii"] = Module["asm"]["dynCall_viiiiiiiiiii"]).apply(null, arguments);
+var dynCall_viiifiii = Module["dynCall_viiifiii"] = function() {
+  return (dynCall_viiifiii = Module["dynCall_viiifiii"] = Module["asm"]["dynCall_viiifiii"]).apply(null, arguments);
 };
 
 /** @type {function(...*):?} */
-var dynCall_iiijiiii = Module["dynCall_iiijiiii"] = function() {
-  return (dynCall_iiijiiii = Module["dynCall_iiijiiii"] = Module["asm"]["dynCall_iiijiiii"]).apply(null, arguments);
+var dynCall_viiiii = Module["dynCall_viiiii"] = function() {
+  return (dynCall_viiiii = Module["dynCall_viiiii"] = Module["asm"]["dynCall_viiiii"]).apply(null, arguments);
 };
 
 /** @type {function(...*):?} */
-var dynCall_vj = Module["dynCall_vj"] = function() {
-  return (dynCall_vj = Module["dynCall_vj"] = Module["asm"]["dynCall_vj"]).apply(null, arguments);
+var dynCall_viiiiii = Module["dynCall_viiiiii"] = function() {
+  return (dynCall_viiiiii = Module["dynCall_viiiiii"] = Module["asm"]["dynCall_viiiiii"]).apply(null, arguments);
 };
 
 /** @type {function(...*):?} */
-var dynCall_jiiiii = Module["dynCall_jiiiii"] = function() {
-  return (dynCall_jiiiii = Module["dynCall_jiiiii"] = Module["asm"]["dynCall_jiiiii"]).apply(null, arguments);
+var dynCall_viiiifiii = Module["dynCall_viiiifiii"] = function() {
+  return (dynCall_viiiifiii = Module["dynCall_viiiifiii"] = Module["asm"]["dynCall_viiiifiii"]).apply(null, arguments);
 };
 
 /** @type {function(...*):?} */
-var dynCall_iji = Module["dynCall_iji"] = function() {
-  return (dynCall_iji = Module["dynCall_iji"] = Module["asm"]["dynCall_iji"]).apply(null, arguments);
+var dynCall_fiii = Module["dynCall_fiii"] = function() {
+  return (dynCall_fiii = Module["dynCall_fiii"] = Module["asm"]["dynCall_fiii"]).apply(null, arguments);
 };
 
 /** @type {function(...*):?} */
-var dynCall_ji = Module["dynCall_ji"] = function() {
-  return (dynCall_ji = Module["dynCall_ji"] = Module["asm"]["dynCall_ji"]).apply(null, arguments);
+var dynCall_viiii = Module["dynCall_viiii"] = function() {
+  return (dynCall_viiii = Module["dynCall_viiii"] = Module["asm"]["dynCall_viiii"]).apply(null, arguments);
 };
 
 /** @type {function(...*):?} */
-var dynCall_ij = Module["dynCall_ij"] = function() {
-  return (dynCall_ij = Module["dynCall_ij"] = Module["asm"]["dynCall_ij"]).apply(null, arguments);
+var dynCall_iiiii = Module["dynCall_iiiii"] = function() {
+  return (dynCall_iiiii = Module["dynCall_iiiii"] = Module["asm"]["dynCall_iiiii"]).apply(null, arguments);
 };
 
 /** @type {function(...*):?} */
-var dynCall_vdiii = Module["dynCall_vdiii"] = function() {
-  return (dynCall_vdiii = Module["dynCall_vdiii"] = Module["asm"]["dynCall_vdiii"]).apply(null, arguments);
+var dynCall_viiffii = Module["dynCall_viiffii"] = function() {
+  return (dynCall_viiffii = Module["dynCall_viiffii"] = Module["asm"]["dynCall_viiffii"]).apply(null, arguments);
 };
 
 /** @type {function(...*):?} */
-var dynCall_vdi = Module["dynCall_vdi"] = function() {
-  return (dynCall_vdi = Module["dynCall_vdi"] = Module["asm"]["dynCall_vdi"]).apply(null, arguments);
+var dynCall_viiiiifii = Module["dynCall_viiiiifii"] = function() {
+  return (dynCall_viiiiifii = Module["dynCall_viiiiifii"] = Module["asm"]["dynCall_viiiiifii"]).apply(null, arguments);
 };
 
 /** @type {function(...*):?} */
-var dynCall_vdddddddddii = Module["dynCall_vdddddddddii"] = function() {
-  return (dynCall_vdddddddddii = Module["dynCall_vdddddddddii"] = Module["asm"]["dynCall_vdddddddddii"]).apply(null, arguments);
+var dynCall_viiiiiii = Module["dynCall_viiiiiii"] = function() {
+  return (dynCall_viiiiiii = Module["dynCall_viiiiiii"] = Module["asm"]["dynCall_viiiiiii"]).apply(null, arguments);
 };
 
 /** @type {function(...*):?} */
-var dynCall_viij = Module["dynCall_viij"] = function() {
-  return (dynCall_viij = Module["dynCall_viij"] = Module["asm"]["dynCall_viij"]).apply(null, arguments);
+var dynCall_viffffi = Module["dynCall_viffffi"] = function() {
+  return (dynCall_viffffi = Module["dynCall_viffffi"] = Module["asm"]["dynCall_viffffi"]).apply(null, arguments);
 };
 
 /** @type {function(...*):?} */
-var dynCall_j = Module["dynCall_j"] = function() {
-  return (dynCall_j = Module["dynCall_j"] = Module["asm"]["dynCall_j"]).apply(null, arguments);
+var dynCall_viiifi = Module["dynCall_viiifi"] = function() {
+  return (dynCall_viiifi = Module["dynCall_viiifi"] = Module["asm"]["dynCall_viiifi"]).apply(null, arguments);
 };
 
 /** @type {function(...*):?} */
-var dynCall_dd = Module["dynCall_dd"] = function() {
-  return (dynCall_dd = Module["dynCall_dd"] = Module["asm"]["dynCall_dd"]).apply(null, arguments);
+var dynCall_vifi = Module["dynCall_vifi"] = function() {
+  return (dynCall_vifi = Module["dynCall_vifi"] = Module["asm"]["dynCall_vifi"]).apply(null, arguments);
 };
 
 /** @type {function(...*):?} */
-var dynCall_ddd = Module["dynCall_ddd"] = function() {
-  return (dynCall_ddd = Module["dynCall_ddd"] = Module["asm"]["dynCall_ddd"]).apply(null, arguments);
+var dynCall_viiiffii = Module["dynCall_viiiffii"] = function() {
+  return (dynCall_viiiffii = Module["dynCall_viiiffii"] = Module["asm"]["dynCall_viiiffii"]).apply(null, arguments);
 };
 
 /** @type {function(...*):?} */
-var dynCall_dddd = Module["dynCall_dddd"] = function() {
-  return (dynCall_dddd = Module["dynCall_dddd"] = Module["asm"]["dynCall_dddd"]).apply(null, arguments);
+var dynCall_vifii = Module["dynCall_vifii"] = function() {
+  return (dynCall_vifii = Module["dynCall_vifii"] = Module["asm"]["dynCall_vifii"]).apply(null, arguments);
 };
 
 /** @type {function(...*):?} */
-var dynCall_ddi = Module["dynCall_ddi"] = function() {
-  return (dynCall_ddi = Module["dynCall_ddi"] = Module["asm"]["dynCall_ddi"]).apply(null, arguments);
+var dynCall_viifii = Module["dynCall_viifii"] = function() {
+  return (dynCall_viifii = Module["dynCall_viifii"] = Module["asm"]["dynCall_viifii"]).apply(null, arguments);
 };
 
 /** @type {function(...*):?} */
-var dynCall_ffff = Module["dynCall_ffff"] = function() {
-  return (dynCall_ffff = Module["dynCall_ffff"] = Module["asm"]["dynCall_ffff"]).apply(null, arguments);
+var dynCall_fi = Module["dynCall_fi"] = function() {
+  return (dynCall_fi = Module["dynCall_fi"] = Module["asm"]["dynCall_fi"]).apply(null, arguments);
 };
 
 /** @type {function(...*):?} */
-var dynCall_ffi = Module["dynCall_ffi"] = function() {
-  return (dynCall_ffi = Module["dynCall_ffi"] = Module["asm"]["dynCall_ffi"]).apply(null, arguments);
+var dynCall_vffi = Module["dynCall_vffi"] = function() {
+  return (dynCall_vffi = Module["dynCall_vffi"] = Module["asm"]["dynCall_vffi"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viiiifii = Module["dynCall_viiiifii"] = function() {
+  return (dynCall_viiiifii = Module["dynCall_viiiifii"] = Module["asm"]["dynCall_viiiifii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viiiffi = Module["dynCall_viiiffi"] = function() {
+  return (dynCall_viiiffi = Module["dynCall_viiiffi"] = Module["asm"]["dynCall_viiiffi"]).apply(null, arguments);
 };
 
 /** @type {function(...*):?} */
@@ -12369,38 +11216,843 @@ var dynCall_iiiiiiii = Module["dynCall_iiiiiiii"] = function() {
 };
 
 /** @type {function(...*):?} */
-var dynCall_jij = Module["dynCall_jij"] = function() {
-  return (dynCall_jij = Module["dynCall_jij"] = Module["asm"]["dynCall_jij"]).apply(null, arguments);
+var dynCall_viifiii = Module["dynCall_viifiii"] = function() {
+  return (dynCall_viifiii = Module["dynCall_viifiii"] = Module["asm"]["dynCall_viifiii"]).apply(null, arguments);
 };
 
 /** @type {function(...*):?} */
-var dynCall_didd = Module["dynCall_didd"] = function() {
-  return (dynCall_didd = Module["dynCall_didd"] = Module["asm"]["dynCall_didd"]).apply(null, arguments);
+var dynCall_vifffiii = Module["dynCall_vifffiii"] = function() {
+  return (dynCall_vifffiii = Module["dynCall_vifffiii"] = Module["asm"]["dynCall_vifffiii"]).apply(null, arguments);
 };
 
 /** @type {function(...*):?} */
-var dynCall_jijj = Module["dynCall_jijj"] = function() {
-  return (dynCall_jijj = Module["dynCall_jijj"] = Module["asm"]["dynCall_jijj"]).apply(null, arguments);
+var dynCall_vififii = Module["dynCall_vififii"] = function() {
+  return (dynCall_vififii = Module["dynCall_vififii"] = Module["asm"]["dynCall_vififii"]).apply(null, arguments);
 };
 
 /** @type {function(...*):?} */
-var dynCall_fiff = Module["dynCall_fiff"] = function() {
-  return (dynCall_fiff = Module["dynCall_fiff"] = Module["asm"]["dynCall_fiff"]).apply(null, arguments);
+var dynCall_vifiii = Module["dynCall_vifiii"] = function() {
+  return (dynCall_vifiii = Module["dynCall_vifiii"] = Module["asm"]["dynCall_vifiii"]).apply(null, arguments);
 };
 
 /** @type {function(...*):?} */
-var dynCall_did = Module["dynCall_did"] = function() {
-  return (dynCall_did = Module["dynCall_did"] = Module["asm"]["dynCall_did"]).apply(null, arguments);
+var dynCall_viffffiii = Module["dynCall_viffffiii"] = function() {
+  return (dynCall_viffffiii = Module["dynCall_viffffiii"] = Module["asm"]["dynCall_viffffiii"]).apply(null, arguments);
 };
 
 /** @type {function(...*):?} */
-var dynCall_fif = Module["dynCall_fif"] = function() {
-  return (dynCall_fif = Module["dynCall_fif"] = Module["asm"]["dynCall_fif"]).apply(null, arguments);
+var dynCall_fffi = Module["dynCall_fffi"] = function() {
+  return (dynCall_fffi = Module["dynCall_fffi"] = Module["asm"]["dynCall_fffi"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_iiifi = Module["dynCall_iiifi"] = function() {
+  return (dynCall_iiifi = Module["dynCall_iiifi"] = Module["asm"]["dynCall_iiifi"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_vifiiii = Module["dynCall_vifiiii"] = function() {
+  return (dynCall_vifiiii = Module["dynCall_vifiiii"] = Module["asm"]["dynCall_vifiiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_vifffi = Module["dynCall_vifffi"] = function() {
+  return (dynCall_vifffi = Module["dynCall_vifffi"] = Module["asm"]["dynCall_vifffi"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viffiii = Module["dynCall_viffiii"] = function() {
+  return (dynCall_viffiii = Module["dynCall_viffiii"] = Module["asm"]["dynCall_viffiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_jii = Module["dynCall_jii"] = function() {
+  return (dynCall_jii = Module["dynCall_jii"] = Module["asm"]["dynCall_jii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_iiiiii = Module["dynCall_iiiiii"] = function() {
+  return (dynCall_iiiiii = Module["dynCall_iiiiii"] = Module["asm"]["dynCall_iiiiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_di = Module["dynCall_di"] = function() {
+  return (dynCall_di = Module["dynCall_di"] = Module["asm"]["dynCall_di"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_vifffii = Module["dynCall_vifffii"] = function() {
+  return (dynCall_vifffii = Module["dynCall_vifffii"] = Module["asm"]["dynCall_vifffii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viiifii = Module["dynCall_viiifii"] = function() {
+  return (dynCall_viiifii = Module["dynCall_viiifii"] = Module["asm"]["dynCall_viiifii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_iifii = Module["dynCall_iifii"] = function() {
+  return (dynCall_iifii = Module["dynCall_iifii"] = Module["asm"]["dynCall_iifii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_vidi = Module["dynCall_vidi"] = function() {
+  return (dynCall_vidi = Module["dynCall_vidi"] = Module["asm"]["dynCall_vidi"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viffii = Module["dynCall_viffii"] = function() {
+  return (dynCall_viffii = Module["dynCall_viffii"] = Module["asm"]["dynCall_viffii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_vfffi = Module["dynCall_vfffi"] = function() {
+  return (dynCall_vfffi = Module["dynCall_vfffi"] = Module["asm"]["dynCall_vfffi"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_vffffi = Module["dynCall_vffffi"] = function() {
+  return (dynCall_vffffi = Module["dynCall_vffffi"] = Module["asm"]["dynCall_vffffi"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_fii = Module["dynCall_fii"] = function() {
+  return (dynCall_fii = Module["dynCall_fii"] = Module["asm"]["dynCall_fii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_iiiiiii = Module["dynCall_iiiiiii"] = function() {
+  return (dynCall_iiiiiii = Module["dynCall_iiiiiii"] = Module["asm"]["dynCall_iiiiiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_vidii = Module["dynCall_vidii"] = function() {
+  return (dynCall_vidii = Module["dynCall_vidii"] = Module["asm"]["dynCall_vidii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viiiiffii = Module["dynCall_viiiiffii"] = function() {
+  return (dynCall_viiiiffii = Module["dynCall_viiiiffii"] = Module["asm"]["dynCall_viiiiffii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_iiiiiiijiii = Module["dynCall_iiiiiiijiii"] = function() {
+  return (dynCall_iiiiiiijiii = Module["dynCall_iiiiiiijiii"] = Module["asm"]["dynCall_iiiiiiijiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_iiji = Module["dynCall_iiji"] = function() {
+  return (dynCall_iiji = Module["dynCall_iiji"] = Module["asm"]["dynCall_iiji"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_iiiiiiji = Module["dynCall_iiiiiiji"] = function() {
+  return (dynCall_iiiiiiji = Module["dynCall_iiiiiiji"] = Module["asm"]["dynCall_iiiiiiji"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_iiiji = Module["dynCall_iiiji"] = function() {
+  return (dynCall_iiiji = Module["dynCall_iiiji"] = Module["asm"]["dynCall_iiiji"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viiiiiiiii = Module["dynCall_viiiiiiiii"] = function() {
+  return (dynCall_viiiiiiiii = Module["dynCall_viiiiiiiii"] = Module["asm"]["dynCall_viiiiiiiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_iiiiiiiii = Module["dynCall_iiiiiiiii"] = function() {
+  return (dynCall_iiiiiiiii = Module["dynCall_iiiiiiiii"] = Module["asm"]["dynCall_iiiiiiiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_iiiiiji = Module["dynCall_iiiiiji"] = function() {
+  return (dynCall_iiiiiji = Module["dynCall_iiiiiji"] = Module["asm"]["dynCall_iiiiiji"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_i = Module["dynCall_i"] = function() {
+  return (dynCall_i = Module["dynCall_i"] = Module["asm"]["dynCall_i"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_jijii = Module["dynCall_jijii"] = function() {
+  return (dynCall_jijii = Module["dynCall_jijii"] = Module["asm"]["dynCall_jijii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_iijjii = Module["dynCall_iijjii"] = function() {
+  return (dynCall_iijjii = Module["dynCall_iijjii"] = Module["asm"]["dynCall_iijjii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_iijji = Module["dynCall_iijji"] = function() {
+  return (dynCall_iijji = Module["dynCall_iijji"] = Module["asm"]["dynCall_iijji"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_iiiiji = Module["dynCall_iiiiji"] = function() {
+  return (dynCall_iiiiji = Module["dynCall_iiiiji"] = Module["asm"]["dynCall_iiiiji"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_iiiiiijiii = Module["dynCall_iiiiiijiii"] = function() {
+  return (dynCall_iiiiiijiii = Module["dynCall_iiiiiijiii"] = Module["asm"]["dynCall_iiiiiijiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_iiiiiijiiiii = Module["dynCall_iiiiiijiiiii"] = function() {
+  return (dynCall_iiiiiijiiiii = Module["dynCall_iiiiiijiiiii"] = Module["asm"]["dynCall_iiiiiijiiiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viiji = Module["dynCall_viiji"] = function() {
+  return (dynCall_viiji = Module["dynCall_viiji"] = Module["asm"]["dynCall_viiji"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_iiiiiiiiii = Module["dynCall_iiiiiiiiii"] = function() {
+  return (dynCall_iiiiiiiiii = Module["dynCall_iiiiiiiiii"] = Module["asm"]["dynCall_iiiiiiiiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_jiii = Module["dynCall_jiii"] = function() {
+  return (dynCall_jiii = Module["dynCall_jiii"] = Module["asm"]["dynCall_jiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_diii = Module["dynCall_diii"] = function() {
+  return (dynCall_diii = Module["dynCall_diii"] = Module["asm"]["dynCall_diii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_ji = Module["dynCall_ji"] = function() {
+  return (dynCall_ji = Module["dynCall_ji"] = Module["asm"]["dynCall_ji"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_ddi = Module["dynCall_ddi"] = function() {
+  return (dynCall_ddi = Module["dynCall_ddi"] = Module["asm"]["dynCall_ddi"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_dddi = Module["dynCall_dddi"] = function() {
+  return (dynCall_dddi = Module["dynCall_dddi"] = Module["asm"]["dynCall_dddi"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_ddii = Module["dynCall_ddii"] = function() {
+  return (dynCall_ddii = Module["dynCall_ddii"] = Module["asm"]["dynCall_ddii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_ffi = Module["dynCall_ffi"] = function() {
+  return (dynCall_ffi = Module["dynCall_ffi"] = Module["asm"]["dynCall_ffi"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_jjjii = Module["dynCall_jjjii"] = function() {
+  return (dynCall_jjjii = Module["dynCall_jjjii"] = Module["asm"]["dynCall_jjjii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_vijji = Module["dynCall_vijji"] = function() {
+  return (dynCall_vijji = Module["dynCall_vijji"] = Module["asm"]["dynCall_vijji"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_ffffi = Module["dynCall_ffffi"] = function() {
+  return (dynCall_ffffi = Module["dynCall_ffffi"] = Module["asm"]["dynCall_ffffi"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_jjji = Module["dynCall_jjji"] = function() {
+  return (dynCall_jjji = Module["dynCall_jjji"] = Module["asm"]["dynCall_jjji"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_ddiii = Module["dynCall_ddiii"] = function() {
+  return (dynCall_ddiii = Module["dynCall_ddiii"] = Module["asm"]["dynCall_ddiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_idi = Module["dynCall_idi"] = function() {
+  return (dynCall_idi = Module["dynCall_idi"] = Module["asm"]["dynCall_idi"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_jdi = Module["dynCall_jdi"] = function() {
+  return (dynCall_jdi = Module["dynCall_jdi"] = Module["asm"]["dynCall_jdi"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_dji = Module["dynCall_dji"] = function() {
+  return (dynCall_dji = Module["dynCall_dji"] = Module["asm"]["dynCall_dji"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_ifi = Module["dynCall_ifi"] = function() {
+  return (dynCall_ifi = Module["dynCall_ifi"] = Module["asm"]["dynCall_ifi"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_iji = Module["dynCall_iji"] = function() {
+  return (dynCall_iji = Module["dynCall_iji"] = Module["asm"]["dynCall_iji"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_jji = Module["dynCall_jji"] = function() {
+  return (dynCall_jji = Module["dynCall_jji"] = Module["asm"]["dynCall_jji"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_jfi = Module["dynCall_jfi"] = function() {
+  return (dynCall_jfi = Module["dynCall_jfi"] = Module["asm"]["dynCall_jfi"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_fji = Module["dynCall_fji"] = function() {
+  return (dynCall_fji = Module["dynCall_fji"] = Module["asm"]["dynCall_fji"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_fdi = Module["dynCall_fdi"] = function() {
+  return (dynCall_fdi = Module["dynCall_fdi"] = Module["asm"]["dynCall_fdi"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_dii = Module["dynCall_dii"] = function() {
+  return (dynCall_dii = Module["dynCall_dii"] = Module["asm"]["dynCall_dii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_dfi = Module["dynCall_dfi"] = function() {
+  return (dynCall_dfi = Module["dynCall_dfi"] = Module["asm"]["dynCall_dfi"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viji = Module["dynCall_viji"] = function() {
+  return (dynCall_viji = Module["dynCall_viji"] = Module["asm"]["dynCall_viji"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_vijii = Module["dynCall_vijii"] = function() {
+  return (dynCall_vijii = Module["dynCall_vijii"] = Module["asm"]["dynCall_vijii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_vijiii = Module["dynCall_vijiii"] = function() {
+  return (dynCall_vijiii = Module["dynCall_vijiii"] = Module["asm"]["dynCall_vijiii"]).apply(null, arguments);
 };
 
 /** @type {function(...*):?} */
 var dynCall_jiiiiiiiii = Module["dynCall_jiiiiiiiii"] = function() {
   return (dynCall_jiiiiiiiii = Module["dynCall_jiiiiiiiii"] = Module["asm"]["dynCall_jiiiiiiiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viidjji = Module["dynCall_viidjji"] = function() {
+  return (dynCall_viidjji = Module["dynCall_viidjji"] = Module["asm"]["dynCall_viidjji"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viidi = Module["dynCall_viidi"] = function() {
+  return (dynCall_viidi = Module["dynCall_viidi"] = Module["asm"]["dynCall_viidi"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_iijii = Module["dynCall_iijii"] = function() {
+  return (dynCall_iijii = Module["dynCall_iijii"] = Module["asm"]["dynCall_iijii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_jiiii = Module["dynCall_jiiii"] = function() {
+  return (dynCall_jiiii = Module["dynCall_jiiii"] = Module["asm"]["dynCall_jiiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_vjjii = Module["dynCall_vjjii"] = function() {
+  return (dynCall_vjjii = Module["dynCall_vjjii"] = Module["asm"]["dynCall_vjjii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_vfii = Module["dynCall_vfii"] = function() {
+  return (dynCall_vfii = Module["dynCall_vfii"] = Module["asm"]["dynCall_vfii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_vdii = Module["dynCall_vdii"] = function() {
+  return (dynCall_vdii = Module["dynCall_vdii"] = Module["asm"]["dynCall_vdii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_iidi = Module["dynCall_iidi"] = function() {
+  return (dynCall_iidi = Module["dynCall_iidi"] = Module["asm"]["dynCall_iidi"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_iddi = Module["dynCall_iddi"] = function() {
+  return (dynCall_iddi = Module["dynCall_iddi"] = Module["asm"]["dynCall_iddi"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_vjii = Module["dynCall_vjii"] = function() {
+  return (dynCall_vjii = Module["dynCall_vjii"] = Module["asm"]["dynCall_vjii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viiiiiiiiiiiii = Module["dynCall_viiiiiiiiiiiii"] = function() {
+  return (dynCall_viiiiiiiiiiiii = Module["dynCall_viiiiiiiiiiiii"] = Module["asm"]["dynCall_viiiiiiiiiiiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_ijji = Module["dynCall_ijji"] = function() {
+  return (dynCall_ijji = Module["dynCall_ijji"] = Module["asm"]["dynCall_ijji"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_vdiiii = Module["dynCall_vdiiii"] = function() {
+  return (dynCall_vdiiii = Module["dynCall_vdiiii"] = Module["asm"]["dynCall_vdiiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_vfiiii = Module["dynCall_vfiiii"] = function() {
+  return (dynCall_vfiiii = Module["dynCall_vfiiii"] = Module["asm"]["dynCall_vfiiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_ijiiiiiiii = Module["dynCall_ijiiiiiiii"] = function() {
+  return (dynCall_ijiiiiiiii = Module["dynCall_ijiiiiiiii"] = Module["asm"]["dynCall_ijiiiiiiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_idiii = Module["dynCall_idiii"] = function() {
+  return (dynCall_idiii = Module["dynCall_idiii"] = Module["asm"]["dynCall_idiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_idiiiii = Module["dynCall_idiiiii"] = function() {
+  return (dynCall_idiiiii = Module["dynCall_idiiiii"] = Module["asm"]["dynCall_idiiiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_iidiii = Module["dynCall_iidiii"] = function() {
+  return (dynCall_iidiii = Module["dynCall_iidiii"] = Module["asm"]["dynCall_iidiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_ifiii = Module["dynCall_ifiii"] = function() {
+  return (dynCall_ifiii = Module["dynCall_ifiii"] = Module["asm"]["dynCall_ifiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_ifiiiii = Module["dynCall_ifiiiii"] = function() {
+  return (dynCall_ifiiiii = Module["dynCall_ifiiiii"] = Module["asm"]["dynCall_ifiiiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_iifiii = Module["dynCall_iifiii"] = function() {
+  return (dynCall_iifiii = Module["dynCall_iifiii"] = Module["asm"]["dynCall_iifiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_ijiii = Module["dynCall_ijiii"] = function() {
+  return (dynCall_ijiii = Module["dynCall_ijiii"] = Module["asm"]["dynCall_ijiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_ijiiiii = Module["dynCall_ijiiiii"] = function() {
+  return (dynCall_ijiiiii = Module["dynCall_ijiiiii"] = Module["asm"]["dynCall_ijiiiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_iijiii = Module["dynCall_iijiii"] = function() {
+  return (dynCall_iijiii = Module["dynCall_iijiii"] = Module["asm"]["dynCall_iijiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_ijii = Module["dynCall_ijii"] = function() {
+  return (dynCall_ijii = Module["dynCall_ijii"] = Module["asm"]["dynCall_ijii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_ijiiii = Module["dynCall_ijiiii"] = function() {
+  return (dynCall_ijiiii = Module["dynCall_ijiiii"] = Module["asm"]["dynCall_ijiiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_jdii = Module["dynCall_jdii"] = function() {
+  return (dynCall_jdii = Module["dynCall_jdii"] = Module["asm"]["dynCall_jdii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_ifii = Module["dynCall_ifii"] = function() {
+  return (dynCall_ifii = Module["dynCall_ifii"] = Module["asm"]["dynCall_ifii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_jijiii = Module["dynCall_jijiii"] = function() {
+  return (dynCall_jijiii = Module["dynCall_jijiii"] = Module["asm"]["dynCall_jijiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_jiiiii = Module["dynCall_jiiiii"] = function() {
+  return (dynCall_jiiiii = Module["dynCall_jiiiii"] = Module["asm"]["dynCall_jiiiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_jiiiiii = Module["dynCall_jiiiiii"] = function() {
+  return (dynCall_jiiiiii = Module["dynCall_jiiiiii"] = Module["asm"]["dynCall_jiiiiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_jjiii = Module["dynCall_jjiii"] = function() {
+  return (dynCall_jjiii = Module["dynCall_jjiii"] = Module["asm"]["dynCall_jjiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_vijjii = Module["dynCall_vijjii"] = function() {
+  return (dynCall_vijjii = Module["dynCall_vijjii"] = Module["asm"]["dynCall_vijjii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viijji = Module["dynCall_viijji"] = function() {
+  return (dynCall_viijji = Module["dynCall_viijji"] = Module["asm"]["dynCall_viijji"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_diiii = Module["dynCall_diiii"] = function() {
+  return (dynCall_diiii = Module["dynCall_diiii"] = Module["asm"]["dynCall_diiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_fiiii = Module["dynCall_fiiii"] = function() {
+  return (dynCall_fiiii = Module["dynCall_fiiii"] = Module["asm"]["dynCall_fiiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_ijjiiii = Module["dynCall_ijjiiii"] = function() {
+  return (dynCall_ijjiiii = Module["dynCall_ijjiiii"] = Module["asm"]["dynCall_ijjiiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_vidiii = Module["dynCall_vidiii"] = function() {
+  return (dynCall_vidiii = Module["dynCall_vidiii"] = Module["asm"]["dynCall_vidiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_iiijjjii = Module["dynCall_iiijjjii"] = function() {
+  return (dynCall_iiijjjii = Module["dynCall_iiijjjii"] = Module["asm"]["dynCall_iiijjjii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_iiijjjjji = Module["dynCall_iiijjjjji"] = function() {
+  return (dynCall_iiijjjjji = Module["dynCall_iiijjjjji"] = Module["asm"]["dynCall_iiijjjjji"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viiiiijiiiiiii = Module["dynCall_viiiiijiiiiiii"] = function() {
+  return (dynCall_viiiiijiiiiiii = Module["dynCall_viiiiijiiiiiii"] = Module["asm"]["dynCall_viiiiijiiiiiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_iifi = Module["dynCall_iifi"] = function() {
+  return (dynCall_iifi = Module["dynCall_iifi"] = Module["asm"]["dynCall_iifi"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_iffi = Module["dynCall_iffi"] = function() {
+  return (dynCall_iffi = Module["dynCall_iffi"] = Module["asm"]["dynCall_iffi"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viddi = Module["dynCall_viddi"] = function() {
+  return (dynCall_viddi = Module["dynCall_viddi"] = Module["asm"]["dynCall_viddi"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viiiiiiiiii = Module["dynCall_viiiiiiiiii"] = function() {
+  return (dynCall_viiiiiiiiii = Module["dynCall_viiiiiiiiii"] = Module["asm"]["dynCall_viiiiiiiiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_iiiiiiiiiii = Module["dynCall_iiiiiiiiiii"] = function() {
+  return (dynCall_iiiiiiiiiii = Module["dynCall_iiiiiiiiiii"] = Module["asm"]["dynCall_iiiiiiiiiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viffffffffffffffffi = Module["dynCall_viffffffffffffffffi"] = function() {
+  return (dynCall_viffffffffffffffffi = Module["dynCall_viffffffffffffffffi"] = Module["asm"]["dynCall_viffffffffffffffffi"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viffi = Module["dynCall_viffi"] = function() {
+  return (dynCall_viffi = Module["dynCall_viffi"] = Module["asm"]["dynCall_viffi"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viiffi = Module["dynCall_viiffi"] = function() {
+  return (dynCall_viiffi = Module["dynCall_viiffi"] = Module["asm"]["dynCall_viiffi"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_iiiiiiiiiiii = Module["dynCall_iiiiiiiiiiii"] = function() {
+  return (dynCall_iiiiiiiiiiii = Module["dynCall_iiiiiiiiiiii"] = Module["asm"]["dynCall_iiiiiiiiiiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_diidi = Module["dynCall_diidi"] = function() {
+  return (dynCall_diidi = Module["dynCall_diidi"] = Module["asm"]["dynCall_diidi"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_didi = Module["dynCall_didi"] = function() {
+  return (dynCall_didi = Module["dynCall_didi"] = Module["asm"]["dynCall_didi"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_ddiddi = Module["dynCall_ddiddi"] = function() {
+  return (dynCall_ddiddi = Module["dynCall_ddiddi"] = Module["asm"]["dynCall_ddiddi"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viiiiiiiiiii = Module["dynCall_viiiiiiiiiii"] = function() {
+  return (dynCall_viiiiiiiiiii = Module["dynCall_viiiiiiiiiii"] = Module["asm"]["dynCall_viiiiiiiiiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viiiiiiiiiiii = Module["dynCall_viiiiiiiiiiii"] = function() {
+  return (dynCall_viiiiiiiiiiii = Module["dynCall_viiiiiiiiiiii"] = Module["asm"]["dynCall_viiiiiiiiiiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_vji = Module["dynCall_vji"] = function() {
+  return (dynCall_vji = Module["dynCall_vji"] = Module["asm"]["dynCall_vji"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_jijji = Module["dynCall_jijji"] = function() {
+  return (dynCall_jijji = Module["dynCall_jijji"] = Module["asm"]["dynCall_jijji"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_jiji = Module["dynCall_jiji"] = function() {
+  return (dynCall_jiji = Module["dynCall_jiji"] = Module["asm"]["dynCall_jiji"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viiiji = Module["dynCall_viiiji"] = function() {
+  return (dynCall_viiiji = Module["dynCall_viiiji"] = Module["asm"]["dynCall_viiiji"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viijii = Module["dynCall_viijii"] = function() {
+  return (dynCall_viijii = Module["dynCall_viijii"] = Module["asm"]["dynCall_viijii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viijjii = Module["dynCall_viijjii"] = function() {
+  return (dynCall_viijjii = Module["dynCall_viijjii"] = Module["asm"]["dynCall_viijjii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viiiiiiji = Module["dynCall_viiiiiiji"] = function() {
+  return (dynCall_viiiiiiji = Module["dynCall_viiiiiiji"] = Module["asm"]["dynCall_viiiiiiji"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viijiiii = Module["dynCall_viijiiii"] = function() {
+  return (dynCall_viijiiii = Module["dynCall_viijiiii"] = Module["asm"]["dynCall_viijiiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viiiiji = Module["dynCall_viiiiji"] = function() {
+  return (dynCall_viiiiji = Module["dynCall_viiiiji"] = Module["asm"]["dynCall_viiiiji"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viiiiiiiji = Module["dynCall_viiiiiiiji"] = function() {
+  return (dynCall_viiiiiiiji = Module["dynCall_viiiiiiiji"] = Module["asm"]["dynCall_viiiiiiiji"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viiiijjiii = Module["dynCall_viiiijjiii"] = function() {
+  return (dynCall_viiiijjiii = Module["dynCall_viiiijjiii"] = Module["asm"]["dynCall_viiiijjiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_iijiiiiiii = Module["dynCall_iijiiiiiii"] = function() {
+  return (dynCall_iijiiiiiii = Module["dynCall_iijiiiiiii"] = Module["asm"]["dynCall_iijiiiiiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_iiijii = Module["dynCall_iiijii"] = function() {
+  return (dynCall_iiijii = Module["dynCall_iiijii"] = Module["asm"]["dynCall_iiijii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viijjji = Module["dynCall_viijjji"] = function() {
+  return (dynCall_viijjji = Module["dynCall_viijjji"] = Module["asm"]["dynCall_viijjji"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_iiiijijii = Module["dynCall_iiiijijii"] = function() {
+  return (dynCall_iiiijijii = Module["dynCall_iiiijijii"] = Module["asm"]["dynCall_iiiijijii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viiiiiiiijii = Module["dynCall_viiiiiiiijii"] = function() {
+  return (dynCall_viiiiiiiijii = Module["dynCall_viiiiiiiijii"] = Module["asm"]["dynCall_viiiiiiiijii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viiiiiiiiiiji = Module["dynCall_viiiiiiiiiiji"] = function() {
+  return (dynCall_viiiiiiiiiiji = Module["dynCall_viiiiiiiiiiji"] = Module["asm"]["dynCall_viiiiiiiiiiji"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_jiiji = Module["dynCall_jiiji"] = function() {
+  return (dynCall_jiiji = Module["dynCall_jiiji"] = Module["asm"]["dynCall_jiiji"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viijiiiiii = Module["dynCall_viijiiiiii"] = function() {
+  return (dynCall_viijiiiiii = Module["dynCall_viijiiiiii"] = Module["asm"]["dynCall_viijiiiiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viijiii = Module["dynCall_viijiii"] = function() {
+  return (dynCall_viijiii = Module["dynCall_viijiii"] = Module["asm"]["dynCall_viijiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_vijiiiiii = Module["dynCall_vijiiiiii"] = function() {
+  return (dynCall_vijiiiiii = Module["dynCall_vijiiiiii"] = Module["asm"]["dynCall_vijiiiiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_vdi = Module["dynCall_vdi"] = function() {
+  return (dynCall_vdi = Module["dynCall_vdi"] = Module["asm"]["dynCall_vdi"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viiiiijii = Module["dynCall_viiiiijii"] = function() {
+  return (dynCall_viiiiijii = Module["dynCall_viiiiijii"] = Module["asm"]["dynCall_viiiiijii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_ifffi = Module["dynCall_ifffi"] = function() {
+  return (dynCall_ifffi = Module["dynCall_ifffi"] = Module["asm"]["dynCall_ifffi"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_iffffi = Module["dynCall_iffffi"] = function() {
+  return (dynCall_iffffi = Module["dynCall_iffffi"] = Module["asm"]["dynCall_iffffi"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_iiffi = Module["dynCall_iiffi"] = function() {
+  return (dynCall_iiffi = Module["dynCall_iiffi"] = Module["asm"]["dynCall_iiffi"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_iiddi = Module["dynCall_iiddi"] = function() {
+  return (dynCall_iiddi = Module["dynCall_iiddi"] = Module["asm"]["dynCall_iiddi"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_iiijiii = Module["dynCall_iiijiii"] = function() {
+  return (dynCall_iiijiii = Module["dynCall_iiijiii"] = Module["asm"]["dynCall_iiijiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_iiifiii = Module["dynCall_iiifiii"] = function() {
+  return (dynCall_iiifiii = Module["dynCall_iiifiii"] = Module["asm"]["dynCall_iiifiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_iiidiii = Module["dynCall_iiidiii"] = function() {
+  return (dynCall_iiidiii = Module["dynCall_iiidiii"] = Module["asm"]["dynCall_iiidiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_jd = Module["dynCall_jd"] = function() {
+  return (dynCall_jd = Module["dynCall_jd"] = Module["asm"]["dynCall_jd"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_id = Module["dynCall_id"] = function() {
+  return (dynCall_id = Module["dynCall_id"] = Module["asm"]["dynCall_id"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_ddd = Module["dynCall_ddd"] = function() {
+  return (dynCall_ddd = Module["dynCall_ddd"] = Module["asm"]["dynCall_ddd"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_jf = Module["dynCall_jf"] = function() {
+  return (dynCall_jf = Module["dynCall_jf"] = Module["asm"]["dynCall_jf"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_if = Module["dynCall_if"] = function() {
+  return (dynCall_if = Module["dynCall_if"] = Module["asm"]["dynCall_if"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_fff = Module["dynCall_fff"] = function() {
+  return (dynCall_fff = Module["dynCall_fff"] = Module["asm"]["dynCall_fff"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_dd = Module["dynCall_dd"] = function() {
+  return (dynCall_dd = Module["dynCall_dd"] = Module["asm"]["dynCall_dd"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_iiijiiii = Module["dynCall_iiijiiii"] = function() {
+  return (dynCall_iiijiiii = Module["dynCall_iiijiiii"] = Module["asm"]["dynCall_iiijiiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_iiiijii = Module["dynCall_iiiijii"] = function() {
+  return (dynCall_iiiijii = Module["dynCall_iiiijii"] = Module["asm"]["dynCall_iiiijii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viiiiiiiiiiiiiiiiii = Module["dynCall_viiiiiiiiiiiiiiiiii"] = function() {
+  return (dynCall_viiiiiiiiiiiiiiiiii = Module["dynCall_viiiiiiiiiiiiiiiiii"] = Module["asm"]["dynCall_viiiiiiiiiiiiiiiiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viiijjiii = Module["dynCall_viiijjiii"] = function() {
+  return (dynCall_viiijjiii = Module["dynCall_viiijjiii"] = Module["asm"]["dynCall_viiijjiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_iiiiijii = Module["dynCall_iiiiijii"] = function() {
+  return (dynCall_iiiiijii = Module["dynCall_iiiiijii"] = Module["asm"]["dynCall_iiiiijii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_ff = Module["dynCall_ff"] = function() {
+  return (dynCall_ff = Module["dynCall_ff"] = Module["asm"]["dynCall_ff"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_vidd = Module["dynCall_vidd"] = function() {
+  return (dynCall_vidd = Module["dynCall_vidd"] = Module["asm"]["dynCall_vidd"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_vj = Module["dynCall_vj"] = function() {
+  return (dynCall_vj = Module["dynCall_vj"] = Module["asm"]["dynCall_vj"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_ij = Module["dynCall_ij"] = function() {
+  return (dynCall_ij = Module["dynCall_ij"] = Module["asm"]["dynCall_ij"]).apply(null, arguments);
 };
 
 /** @type {function(...*):?} */
@@ -12419,23 +12071,13 @@ var dynCall_iiijiiiii = Module["dynCall_iiijiiiii"] = function() {
 };
 
 /** @type {function(...*):?} */
-var dynCall_idi = Module["dynCall_idi"] = function() {
-  return (dynCall_idi = Module["dynCall_idi"] = Module["asm"]["dynCall_idi"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
-var dynCall_idiii = Module["dynCall_idiii"] = function() {
-  return (dynCall_idiii = Module["dynCall_idiii"] = Module["asm"]["dynCall_idiii"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
 var dynCall_idddddddddii = Module["dynCall_idddddddddii"] = function() {
   return (dynCall_idddddddddii = Module["dynCall_idddddddddii"] = Module["asm"]["dynCall_idddddddddii"]).apply(null, arguments);
 };
 
 /** @type {function(...*):?} */
-var dynCall_viiijjii = Module["dynCall_viiijjii"] = function() {
-  return (dynCall_viiijjii = Module["dynCall_viiijjii"] = Module["asm"]["dynCall_viiijjii"]).apply(null, arguments);
+var dynCall_j = Module["dynCall_j"] = function() {
+  return (dynCall_j = Module["dynCall_j"] = Module["asm"]["dynCall_j"]).apply(null, arguments);
 };
 
 /** @type {function(...*):?} */
@@ -12464,36 +12106,6 @@ var dynCall_iidii = Module["dynCall_iidii"] = function() {
 };
 
 /** @type {function(...*):?} */
-var dynCall_iidi = Module["dynCall_iidi"] = function() {
-  return (dynCall_iidi = Module["dynCall_iidi"] = Module["asm"]["dynCall_iidi"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
-var dynCall_di = Module["dynCall_di"] = function() {
-  return (dynCall_di = Module["dynCall_di"] = Module["asm"]["dynCall_di"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
-var dynCall_dii = Module["dynCall_dii"] = function() {
-  return (dynCall_dii = Module["dynCall_dii"] = Module["asm"]["dynCall_dii"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
-var dynCall_iiiiiiiii = Module["dynCall_iiiiiiiii"] = function() {
-  return (dynCall_iiiiiiiii = Module["dynCall_iiiiiiiii"] = Module["asm"]["dynCall_iiiiiiiii"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
-var dynCall_iiiiiiiiii = Module["dynCall_iiiiiiiiii"] = function() {
-  return (dynCall_iiiiiiiiii = Module["dynCall_iiiiiiiiii"] = Module["asm"]["dynCall_iiiiiiiiii"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
-var dynCall_iiiiiiiiiii = Module["dynCall_iiiiiiiiiii"] = function() {
-  return (dynCall_iiiiiiiiiii = Module["dynCall_iiiiiiiiiii"] = Module["asm"]["dynCall_iiiiiiiiiii"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
 var dynCall_iiidi = Module["dynCall_iiidi"] = function() {
   return (dynCall_iiidi = Module["dynCall_iiidi"] = Module["asm"]["dynCall_iiidi"]).apply(null, arguments);
 };
@@ -12506,11 +12118,6 @@ var dynCall_iiiidi = Module["dynCall_iiiidi"] = function() {
 /** @type {function(...*):?} */
 var dynCall_viiiidii = Module["dynCall_viiiidii"] = function() {
   return (dynCall_viiiidii = Module["dynCall_viiiidii"] = Module["asm"]["dynCall_viiiidii"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
-var dynCall_iiji = Module["dynCall_iiji"] = function() {
-  return (dynCall_iiji = Module["dynCall_iiji"] = Module["asm"]["dynCall_iiji"]).apply(null, arguments);
 };
 
 /** @type {function(...*):?} */
@@ -12529,21 +12136,6 @@ var dynCall_iiiidii = Module["dynCall_iiiidii"] = function() {
 };
 
 /** @type {function(...*):?} */
-var dynCall_iidiii = Module["dynCall_iidiii"] = function() {
-  return (dynCall_iidiii = Module["dynCall_iidiii"] = Module["asm"]["dynCall_iidiii"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
-var dynCall_iijii = Module["dynCall_iijii"] = function() {
-  return (dynCall_iijii = Module["dynCall_iijii"] = Module["asm"]["dynCall_iijii"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
-var dynCall_iijiii = Module["dynCall_iijiii"] = function() {
-  return (dynCall_iijiii = Module["dynCall_iijiii"] = Module["asm"]["dynCall_iijiii"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
 var dynCall_vid = Module["dynCall_vid"] = function() {
   return (dynCall_vid = Module["dynCall_vid"] = Module["asm"]["dynCall_vid"]).apply(null, arguments);
 };
@@ -12559,6 +12151,21 @@ var dynCall_iiiiddiii = Module["dynCall_iiiiddiii"] = function() {
 };
 
 /** @type {function(...*):?} */
+var dynCall_jij = Module["dynCall_jij"] = function() {
+  return (dynCall_jij = Module["dynCall_jij"] = Module["asm"]["dynCall_jij"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_did = Module["dynCall_did"] = function() {
+  return (dynCall_did = Module["dynCall_did"] = Module["asm"]["dynCall_did"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_didd = Module["dynCall_didd"] = function() {
+  return (dynCall_didd = Module["dynCall_didd"] = Module["asm"]["dynCall_didd"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
 var dynCall_viiidi = Module["dynCall_viiidi"] = function() {
   return (dynCall_viiidi = Module["dynCall_viiidi"] = Module["asm"]["dynCall_viiidi"]).apply(null, arguments);
 };
@@ -12571,36 +12178,6 @@ var dynCall_vij = Module["dynCall_vij"] = function() {
 /** @type {function(...*):?} */
 var dynCall_iijiiii = Module["dynCall_iijiiii"] = function() {
   return (dynCall_iijiiii = Module["dynCall_iijiiii"] = Module["asm"]["dynCall_iijiiii"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
-var dynCall_diii = Module["dynCall_diii"] = function() {
-  return (dynCall_diii = Module["dynCall_diii"] = Module["asm"]["dynCall_diii"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
-var dynCall_vidi = Module["dynCall_vidi"] = function() {
-  return (dynCall_vidi = Module["dynCall_vidi"] = Module["asm"]["dynCall_vidi"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
-var dynCall_jd = Module["dynCall_jd"] = function() {
-  return (dynCall_jd = Module["dynCall_jd"] = Module["asm"]["dynCall_jd"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
-var dynCall_jf = Module["dynCall_jf"] = function() {
-  return (dynCall_jf = Module["dynCall_jf"] = Module["asm"]["dynCall_jf"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
-var dynCall_id = Module["dynCall_id"] = function() {
-  return (dynCall_id = Module["dynCall_id"] = Module["asm"]["dynCall_id"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
-var dynCall_if = Module["dynCall_if"] = function() {
-  return (dynCall_if = Module["dynCall_if"] = Module["asm"]["dynCall_if"]).apply(null, arguments);
 };
 
 /** @type {function(...*):?} */
@@ -12649,38 +12226,8 @@ var dynCall_viffff = Module["dynCall_viffff"] = function() {
 };
 
 /** @type {function(...*):?} */
-var dynCall_jiji = Module["dynCall_jiji"] = function() {
-  return (dynCall_jiji = Module["dynCall_jiji"] = Module["asm"]["dynCall_jiji"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
 var dynCall_iiif = Module["dynCall_iiif"] = function() {
   return (dynCall_iiif = Module["dynCall_iiif"] = Module["asm"]["dynCall_iiif"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
-var dynCall_iifi = Module["dynCall_iifi"] = function() {
-  return (dynCall_iifi = Module["dynCall_iifi"] = Module["asm"]["dynCall_iifi"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
-var dynCall_iifif = Module["dynCall_iifif"] = function() {
-  return (dynCall_iifif = Module["dynCall_iifif"] = Module["asm"]["dynCall_iifif"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
-var dynCall_viiifi = Module["dynCall_viiifi"] = function() {
-  return (dynCall_viiifi = Module["dynCall_viiifi"] = Module["asm"]["dynCall_viiifi"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
-var dynCall_viiiiiiifi = Module["dynCall_viiiiiiifi"] = function() {
-  return (dynCall_viiiiiiifi = Module["dynCall_viiiiiiifi"] = Module["asm"]["dynCall_viiiiiiifi"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
-var dynCall_viifi = Module["dynCall_viifi"] = function() {
-  return (dynCall_viifi = Module["dynCall_viifi"] = Module["asm"]["dynCall_viifi"]).apply(null, arguments);
 };
 
 /** @type {function(...*):?} */
@@ -12689,38 +12236,8 @@ var dynCall_vififi = Module["dynCall_vififi"] = function() {
 };
 
 /** @type {function(...*):?} */
-var dynCall_viifii = Module["dynCall_viifii"] = function() {
-  return (dynCall_viifii = Module["dynCall_viifii"] = Module["asm"]["dynCall_viifii"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
-var dynCall_vifffii = Module["dynCall_vifffii"] = function() {
-  return (dynCall_vifffii = Module["dynCall_vifffii"] = Module["asm"]["dynCall_vifffii"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
-var dynCall_vifi = Module["dynCall_vifi"] = function() {
-  return (dynCall_vifi = Module["dynCall_vifi"] = Module["asm"]["dynCall_vifi"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
-var dynCall_vifffi = Module["dynCall_vifffi"] = function() {
-  return (dynCall_vifffi = Module["dynCall_vifffi"] = Module["asm"]["dynCall_vifffi"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
-var dynCall_viiifffi = Module["dynCall_viiifffi"] = function() {
-  return (dynCall_viiifffi = Module["dynCall_viiifffi"] = Module["asm"]["dynCall_viiifffi"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
-var dynCall_viiffii = Module["dynCall_viiffii"] = function() {
-  return (dynCall_viiffii = Module["dynCall_viiffii"] = Module["asm"]["dynCall_viiffii"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
-var dynCall_viiffi = Module["dynCall_viiffi"] = function() {
-  return (dynCall_viiffi = Module["dynCall_viiffi"] = Module["asm"]["dynCall_viiffi"]).apply(null, arguments);
+var dynCall_viffffii = Module["dynCall_viffffii"] = function() {
+  return (dynCall_viffffii = Module["dynCall_viffffii"] = Module["asm"]["dynCall_viffffii"]).apply(null, arguments);
 };
 
 /** @type {function(...*):?} */
@@ -12729,63 +12246,8 @@ var dynCall_viiiifi = Module["dynCall_viiiifi"] = function() {
 };
 
 /** @type {function(...*):?} */
-var dynCall_viiifii = Module["dynCall_viiifii"] = function() {
-  return (dynCall_viiifii = Module["dynCall_viiifii"] = Module["asm"]["dynCall_viiifii"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
-var dynCall_viifffi = Module["dynCall_viifffi"] = function() {
-  return (dynCall_viifffi = Module["dynCall_viifffi"] = Module["asm"]["dynCall_viifffi"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
-var dynCall_vifii = Module["dynCall_vifii"] = function() {
-  return (dynCall_vifii = Module["dynCall_vifii"] = Module["asm"]["dynCall_vifii"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
-var dynCall_viffffii = Module["dynCall_viffffii"] = function() {
-  return (dynCall_viffffii = Module["dynCall_viffffii"] = Module["asm"]["dynCall_viffffii"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
-var dynCall_vifiii = Module["dynCall_vifiii"] = function() {
-  return (dynCall_vifiii = Module["dynCall_vifiii"] = Module["asm"]["dynCall_vifiii"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
-var dynCall_viiiiffi = Module["dynCall_viiiiffi"] = function() {
-  return (dynCall_viiiiffi = Module["dynCall_viiiiffi"] = Module["asm"]["dynCall_viiiiffi"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
-var dynCall_viiiffi = Module["dynCall_viiiffi"] = function() {
-  return (dynCall_viiiffi = Module["dynCall_viiiffi"] = Module["asm"]["dynCall_viiiffi"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
-var dynCall_viiiifffi = Module["dynCall_viiiifffi"] = function() {
-  return (dynCall_viiiifffi = Module["dynCall_viiiifffi"] = Module["asm"]["dynCall_viiiifffi"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
-var dynCall_iff = Module["dynCall_iff"] = function() {
-  return (dynCall_iff = Module["dynCall_iff"] = Module["asm"]["dynCall_iff"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
 var dynCall_viiif = Module["dynCall_viiif"] = function() {
   return (dynCall_viiif = Module["dynCall_viiif"] = Module["asm"]["dynCall_viiif"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
-var dynCall_viffi = Module["dynCall_viffi"] = function() {
-  return (dynCall_viffi = Module["dynCall_viffi"] = Module["asm"]["dynCall_viffi"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
-var dynCall_viffii = Module["dynCall_viffii"] = function() {
-  return (dynCall_viffii = Module["dynCall_viffii"] = Module["asm"]["dynCall_viffii"]).apply(null, arguments);
 };
 
 /** @type {function(...*):?} */
@@ -12794,28 +12256,13 @@ var dynCall_f = Module["dynCall_f"] = function() {
 };
 
 /** @type {function(...*):?} */
-var dynCall_fii = Module["dynCall_fii"] = function() {
-  return (dynCall_fii = Module["dynCall_fii"] = Module["asm"]["dynCall_fii"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
-var dynCall_fi = Module["dynCall_fi"] = function() {
-  return (dynCall_fi = Module["dynCall_fi"] = Module["asm"]["dynCall_fi"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
 var dynCall_d = Module["dynCall_d"] = function() {
   return (dynCall_d = Module["dynCall_d"] = Module["asm"]["dynCall_d"]).apply(null, arguments);
 };
 
 /** @type {function(...*):?} */
-var dynCall_vidddddd = Module["dynCall_vidddddd"] = function() {
-  return (dynCall_vidddddd = Module["dynCall_vidddddd"] = Module["asm"]["dynCall_vidddddd"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
-var dynCall_vidddd = Module["dynCall_vidddd"] = function() {
-  return (dynCall_vidddd = Module["dynCall_vidddd"] = Module["asm"]["dynCall_vidddd"]).apply(null, arguments);
+var dynCall_viiiiffi = Module["dynCall_viiiiffi"] = function() {
+  return (dynCall_viiiiffi = Module["dynCall_viiiiffi"] = Module["asm"]["dynCall_viiiiffi"]).apply(null, arguments);
 };
 
 /** @type {function(...*):?} */
@@ -12824,48 +12271,8 @@ var dynCall_viiiff = Module["dynCall_viiiff"] = function() {
 };
 
 /** @type {function(...*):?} */
-var dynCall_ffffff = Module["dynCall_ffffff"] = function() {
-  return (dynCall_ffffff = Module["dynCall_ffffff"] = Module["asm"]["dynCall_ffffff"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
 var dynCall_vfff = Module["dynCall_vfff"] = function() {
   return (dynCall_vfff = Module["dynCall_vfff"] = Module["asm"]["dynCall_vfff"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
-var dynCall_viijjj = Module["dynCall_viijjj"] = function() {
-  return (dynCall_viijjj = Module["dynCall_viijjj"] = Module["asm"]["dynCall_viijjj"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
-var dynCall_vdddddd = Module["dynCall_vdddddd"] = function() {
-  return (dynCall_vdddddd = Module["dynCall_vdddddd"] = Module["asm"]["dynCall_vdddddd"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
-var dynCall_ijii = Module["dynCall_ijii"] = function() {
-  return (dynCall_ijii = Module["dynCall_ijii"] = Module["asm"]["dynCall_ijii"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
-var dynCall_viijj = Module["dynCall_viijj"] = function() {
-  return (dynCall_viijj = Module["dynCall_viijj"] = Module["asm"]["dynCall_viijj"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
-var dynCall_viiff = Module["dynCall_viiff"] = function() {
-  return (dynCall_viiff = Module["dynCall_viiff"] = Module["asm"]["dynCall_viiff"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
-var dynCall_vd = Module["dynCall_vd"] = function() {
-  return (dynCall_vd = Module["dynCall_vd"] = Module["asm"]["dynCall_vd"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
-var dynCall_iiij = Module["dynCall_iiij"] = function() {
-  return (dynCall_iiij = Module["dynCall_iiij"] = Module["asm"]["dynCall_iiij"]).apply(null, arguments);
 };
 
 /** @type {function(...*):?} */
@@ -12874,23 +12281,158 @@ var dynCall_iijj = Module["dynCall_iijj"] = function() {
 };
 
 /** @type {function(...*):?} */
-var dynCall_iijji = Module["dynCall_iijji"] = function() {
-  return (dynCall_iijji = Module["dynCall_iijji"] = Module["asm"]["dynCall_iijji"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
-var dynCall_iijiiij = Module["dynCall_iijiiij"] = function() {
-  return (dynCall_iijiiij = Module["dynCall_iijiiij"] = Module["asm"]["dynCall_iijiiij"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
 var dynCall_iiiij = Module["dynCall_iiiij"] = function() {
   return (dynCall_iiiij = Module["dynCall_iiiij"] = Module["asm"]["dynCall_iiiij"]).apply(null, arguments);
 };
 
 /** @type {function(...*):?} */
-var dynCall_jiiij = Module["dynCall_jiiij"] = function() {
-  return (dynCall_jiiij = Module["dynCall_jiiij"] = Module["asm"]["dynCall_jiiij"]).apply(null, arguments);
+var dynCall_viij = Module["dynCall_viij"] = function() {
+  return (dynCall_viij = Module["dynCall_viij"] = Module["asm"]["dynCall_viij"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_jijj = Module["dynCall_jijj"] = function() {
+  return (dynCall_jijj = Module["dynCall_jijj"] = Module["asm"]["dynCall_jijj"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viiiiiiiiiiiiii = Module["dynCall_viiiiiiiiiiiiii"] = function() {
+  return (dynCall_viiiiiiiiiiiiii = Module["dynCall_viiiiiiiiiiiiii"] = Module["asm"]["dynCall_viiiiiiiiiiiiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viiiiiiiiiiiiiii = Module["dynCall_viiiiiiiiiiiiiii"] = function() {
+  return (dynCall_viiiiiiiiiiiiiii = Module["dynCall_viiiiiiiiiiiiiii"] = Module["asm"]["dynCall_viiiiiiiiiiiiiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viiiiiiiiiiiiiiii = Module["dynCall_viiiiiiiiiiiiiiii"] = function() {
+  return (dynCall_viiiiiiiiiiiiiiii = Module["dynCall_viiiiiiiiiiiiiiii"] = Module["asm"]["dynCall_viiiiiiiiiiiiiiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viiiiiiiiiiiiiiiii = Module["dynCall_viiiiiiiiiiiiiiiii"] = function() {
+  return (dynCall_viiiiiiiiiiiiiiiii = Module["dynCall_viiiiiiiiiiiiiiiii"] = Module["asm"]["dynCall_viiiiiiiiiiiiiiiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viiiiiiiiiiiiiiiiiii = Module["dynCall_viiiiiiiiiiiiiiiiiii"] = function() {
+  return (dynCall_viiiiiiiiiiiiiiiiiii = Module["dynCall_viiiiiiiiiiiiiiiiiii"] = Module["asm"]["dynCall_viiiiiiiiiiiiiiiiiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viiiiiiiiiiiiiiiiiiii = Module["dynCall_viiiiiiiiiiiiiiiiiiii"] = function() {
+  return (dynCall_viiiiiiiiiiiiiiiiiiii = Module["dynCall_viiiiiiiiiiiiiiiiiiii"] = Module["asm"]["dynCall_viiiiiiiiiiiiiiiiiiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viiiiiiiiiiiiiiiiiiiii = Module["dynCall_viiiiiiiiiiiiiiiiiiiii"] = function() {
+  return (dynCall_viiiiiiiiiiiiiiiiiiiii = Module["dynCall_viiiiiiiiiiiiiiiiiiiii"] = Module["asm"]["dynCall_viiiiiiiiiiiiiiiiiiiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viiiiiiiiiiiiiiiiiiiiii = Module["dynCall_viiiiiiiiiiiiiiiiiiiiii"] = function() {
+  return (dynCall_viiiiiiiiiiiiiiiiiiiiii = Module["dynCall_viiiiiiiiiiiiiiiiiiiiii"] = Module["asm"]["dynCall_viiiiiiiiiiiiiiiiiiiiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viiiiiiiiiiiiiiiiiiiiiii = Module["dynCall_viiiiiiiiiiiiiiiiiiiiiii"] = function() {
+  return (dynCall_viiiiiiiiiiiiiiiiiiiiiii = Module["dynCall_viiiiiiiiiiiiiiiiiiiiiii"] = Module["asm"]["dynCall_viiiiiiiiiiiiiiiiiiiiiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viiiiiiiiiiiiiiiiiiiiiiii = Module["dynCall_viiiiiiiiiiiiiiiiiiiiiiii"] = function() {
+  return (dynCall_viiiiiiiiiiiiiiiiiiiiiiii = Module["dynCall_viiiiiiiiiiiiiiiiiiiiiiii"] = Module["asm"]["dynCall_viiiiiiiiiiiiiiiiiiiiiiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viiiiiiiiiiiiiiiiiiiiiiiii = Module["dynCall_viiiiiiiiiiiiiiiiiiiiiiiii"] = function() {
+  return (dynCall_viiiiiiiiiiiiiiiiiiiiiiiii = Module["dynCall_viiiiiiiiiiiiiiiiiiiiiiiii"] = Module["asm"]["dynCall_viiiiiiiiiiiiiiiiiiiiiiiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viiiiiiiiiiiiiiiiiiiiiiiiii = Module["dynCall_viiiiiiiiiiiiiiiiiiiiiiiiii"] = function() {
+  return (dynCall_viiiiiiiiiiiiiiiiiiiiiiiiii = Module["dynCall_viiiiiiiiiiiiiiiiiiiiiiiiii"] = Module["asm"]["dynCall_viiiiiiiiiiiiiiiiiiiiiiiiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiii = Module["dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiii"] = function() {
+  return (dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiii = Module["dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiii"] = Module["asm"]["dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiii = Module["dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiii"] = function() {
+  return (dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiii = Module["dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiii"] = Module["asm"]["dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiii = Module["dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiii"] = function() {
+  return (dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiii = Module["dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiii"] = Module["asm"]["dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiii = Module["dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiii"] = function() {
+  return (dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiii = Module["dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiii"] = Module["asm"]["dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiii = Module["dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiii"] = function() {
+  return (dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiii = Module["dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiii"] = Module["asm"]["dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii = Module["dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii"] = function() {
+  return (dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii = Module["dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii"] = Module["asm"]["dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii = Module["dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii"] = function() {
+  return (dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii = Module["dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii"] = Module["asm"]["dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii = Module["dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii"] = function() {
+  return (dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii = Module["dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii"] = Module["asm"]["dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii = Module["dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii"] = function() {
+  return (dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii = Module["dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii"] = Module["asm"]["dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii = Module["dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii"] = function() {
+  return (dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii = Module["dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii"] = Module["asm"]["dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii = Module["dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii"] = function() {
+  return (dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii = Module["dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii"] = Module["asm"]["dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii = Module["dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii"] = function() {
+  return (dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii = Module["dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii"] = Module["asm"]["dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii = Module["dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii"] = function() {
+  return (dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii = Module["dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii"] = Module["asm"]["dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii = Module["dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii"] = function() {
+  return (dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii = Module["dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii"] = Module["asm"]["dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii = Module["dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii"] = function() {
+  return (dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii = Module["dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii"] = Module["asm"]["dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii"]).apply(null, arguments);
+};
+
+/** @type {function(...*):?} */
+var dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii = Module["dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii"] = function() {
+  return (dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii = Module["dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii"] = Module["asm"]["dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii"]).apply(null, arguments);
 };
 
 /** @type {function(...*):?} */
@@ -12914,10 +12456,10 @@ var _asyncify_stop_rewind = Module["_asyncify_stop_rewind"] = function() {
 };
 
 
-function invoke_vi(index,a1) {
+function invoke_iiiiii(index,a1,a2,a3,a4,a5) {
   var sp = stackSave();
   try {
-    dynCall_vi(index,a1);
+    return dynCall_iiiiii(index,a1,a2,a3,a4,a5);
   } catch(e) {
     stackRestore(sp);
     if (e !== e+0) throw e;
@@ -12925,10 +12467,10 @@ function invoke_vi(index,a1) {
   }
 }
 
-function invoke_ii(index,a1) {
+function invoke_v(index) {
   var sp = stackSave();
   try {
-    return dynCall_ii(index,a1);
+    dynCall_v(index);
   } catch(e) {
     stackRestore(sp);
     if (e !== e+0) throw e;
@@ -12958,6 +12500,39 @@ function invoke_vii(index,a1,a2) {
   }
 }
 
+function invoke_viiii(index,a1,a2,a3,a4) {
+  var sp = stackSave();
+  try {
+    dynCall_viiii(index,a1,a2,a3,a4);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_ii(index,a1) {
+  var sp = stackSave();
+  try {
+    return dynCall_ii(index,a1);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_iiiii(index,a1,a2,a3,a4) {
+  var sp = stackSave();
+  try {
+    return dynCall_iiiii(index,a1,a2,a3,a4);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
 function invoke_iiii(index,a1,a2,a3) {
   var sp = stackSave();
   try {
@@ -12969,10 +12544,10 @@ function invoke_iiii(index,a1,a2,a3) {
   }
 }
 
-function invoke_v(index) {
+function invoke_vi(index,a1) {
   var sp = stackSave();
   try {
-    dynCall_v(index);
+    dynCall_vi(index,a1);
   } catch(e) {
     stackRestore(sp);
     if (e !== e+0) throw e;
@@ -12984,6 +12559,534 @@ function invoke_viii(index,a1,a2,a3) {
   var sp = stackSave();
   try {
     dynCall_viii(index,a1,a2,a3);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_viiiii(index,a1,a2,a3,a4,a5) {
+  var sp = stackSave();
+  try {
+    dynCall_viiiii(index,a1,a2,a3,a4,a5);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_viiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11) {
+  var sp = stackSave();
+  try {
+    dynCall_viiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_iiiiiiii(index,a1,a2,a3,a4,a5,a6,a7) {
+  var sp = stackSave();
+  try {
+    return dynCall_iiiiiiii(index,a1,a2,a3,a4,a5,a6,a7);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_iiiiiii(index,a1,a2,a3,a4,a5,a6) {
+  var sp = stackSave();
+  try {
+    return dynCall_iiiiiii(index,a1,a2,a3,a4,a5,a6);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_viiiiii(index,a1,a2,a3,a4,a5,a6) {
+  var sp = stackSave();
+  try {
+    dynCall_viiiiii(index,a1,a2,a3,a4,a5,a6);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_viiiiiii(index,a1,a2,a3,a4,a5,a6,a7) {
+  var sp = stackSave();
+  try {
+    dynCall_viiiiiii(index,a1,a2,a3,a4,a5,a6,a7);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_viiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9) {
+  var sp = stackSave();
+  try {
+    dynCall_viiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_iiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8) {
+  var sp = stackSave();
+  try {
+    return dynCall_iiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_viiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8) {
+  var sp = stackSave();
+  try {
+    dynCall_viiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_i(index) {
+  var sp = stackSave();
+  try {
+    return dynCall_i(index);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_viiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10) {
+  var sp = stackSave();
+  try {
+    dynCall_viiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_viiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12) {
+  var sp = stackSave();
+  try {
+    dynCall_viiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_viiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13) {
+  var sp = stackSave();
+  try {
+    dynCall_viiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_viiiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14) {
+  var sp = stackSave();
+  try {
+    dynCall_viiiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_viiiiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15) {
+  var sp = stackSave();
+  try {
+    dynCall_viiiiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_viiiiiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16) {
+  var sp = stackSave();
+  try {
+    dynCall_viiiiiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_viiiiiiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17) {
+  var sp = stackSave();
+  try {
+    dynCall_viiiiiiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_viiiiiiiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18) {
+  var sp = stackSave();
+  try {
+    dynCall_viiiiiiiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_viiiiiiiiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19) {
+  var sp = stackSave();
+  try {
+    dynCall_viiiiiiiiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_viiiiiiiiiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20) {
+  var sp = stackSave();
+  try {
+    dynCall_viiiiiiiiiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_viiiiiiiiiiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21) {
+  var sp = stackSave();
+  try {
+    dynCall_viiiiiiiiiiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_viiiiiiiiiiiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21,a22) {
+  var sp = stackSave();
+  try {
+    dynCall_viiiiiiiiiiiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21,a22);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_viiiiiiiiiiiiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21,a22,a23) {
+  var sp = stackSave();
+  try {
+    dynCall_viiiiiiiiiiiiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21,a22,a23);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_viiiiiiiiiiiiiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21,a22,a23,a24) {
+  var sp = stackSave();
+  try {
+    dynCall_viiiiiiiiiiiiiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21,a22,a23,a24);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_viiiiiiiiiiiiiiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21,a22,a23,a24,a25) {
+  var sp = stackSave();
+  try {
+    dynCall_viiiiiiiiiiiiiiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21,a22,a23,a24,a25);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_viiiiiiiiiiiiiiiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21,a22,a23,a24,a25,a26) {
+  var sp = stackSave();
+  try {
+    dynCall_viiiiiiiiiiiiiiiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21,a22,a23,a24,a25,a26);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_viiiiiiiiiiiiiiiiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21,a22,a23,a24,a25,a26,a27) {
+  var sp = stackSave();
+  try {
+    dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21,a22,a23,a24,a25,a26,a27);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_viiiiiiiiiiiiiiiiiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21,a22,a23,a24,a25,a26,a27,a28) {
+  var sp = stackSave();
+  try {
+    dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21,a22,a23,a24,a25,a26,a27,a28);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_viiiiiiiiiiiiiiiiiiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21,a22,a23,a24,a25,a26,a27,a28,a29) {
+  var sp = stackSave();
+  try {
+    dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21,a22,a23,a24,a25,a26,a27,a28,a29);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_viiiiiiiiiiiiiiiiiiiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21,a22,a23,a24,a25,a26,a27,a28,a29,a30) {
+  var sp = stackSave();
+  try {
+    dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21,a22,a23,a24,a25,a26,a27,a28,a29,a30);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,a31) {
+  var sp = stackSave();
+  try {
+    dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,a31);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,a31,a32) {
+  var sp = stackSave();
+  try {
+    dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,a31,a32);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,a31,a32,a33) {
+  var sp = stackSave();
+  try {
+    dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,a31,a32,a33);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,a31,a32,a33,a34) {
+  var sp = stackSave();
+  try {
+    dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,a31,a32,a33,a34);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,a31,a32,a33,a34,a35) {
+  var sp = stackSave();
+  try {
+    dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,a31,a32,a33,a34,a35);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,a31,a32,a33,a34,a35,a36) {
+  var sp = stackSave();
+  try {
+    dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,a31,a32,a33,a34,a35,a36);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,a31,a32,a33,a34,a35,a36,a37) {
+  var sp = stackSave();
+  try {
+    dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,a31,a32,a33,a34,a35,a36,a37);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,a31,a32,a33,a34,a35,a36,a37,a38) {
+  var sp = stackSave();
+  try {
+    dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,a31,a32,a33,a34,a35,a36,a37,a38);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,a31,a32,a33,a34,a35,a36,a37,a38,a39) {
+  var sp = stackSave();
+  try {
+    dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,a31,a32,a33,a34,a35,a36,a37,a38,a39);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,a31,a32,a33,a34,a35,a36,a37,a38,a39,a40) {
+  var sp = stackSave();
+  try {
+    dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,a31,a32,a33,a34,a35,a36,a37,a38,a39,a40);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,a41) {
+  var sp = stackSave();
+  try {
+    dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,a41);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,a41,a42) {
+  var sp = stackSave();
+  try {
+    dynCall_viiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21,a22,a23,a24,a25,a26,a27,a28,a29,a30,a31,a32,a33,a34,a35,a36,a37,a38,a39,a40,a41,a42);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_iiiiiiijiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11) {
+  var sp = stackSave();
+  try {
+    return dynCall_iiiiiiijiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_iiji(index,a1,a2,a3,a4) {
+  var sp = stackSave();
+  try {
+    return dynCall_iiji(index,a1,a2,a3,a4);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_iiiiiiji(index,a1,a2,a3,a4,a5,a6,a7,a8) {
+  var sp = stackSave();
+  try {
+    return dynCall_iiiiiiji(index,a1,a2,a3,a4,a5,a6,a7,a8);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_jii(index,a1,a2) {
+  var sp = stackSave();
+  try {
+    return dynCall_jii(index,a1,a2);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_iiiji(index,a1,a2,a3,a4,a5) {
+  var sp = stackSave();
+  try {
+    return dynCall_iiiji(index,a1,a2,a3,a4,a5);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
+function invoke_iiiiiji(index,a1,a2,a3,a4,a5,a6,a7) {
+  var sp = stackSave();
+  try {
+    return dynCall_iiiiiji(index,a1,a2,a3,a4,a5,a6,a7);
   } catch(e) {
     stackRestore(sp);
     if (e !== e+0) throw e;
