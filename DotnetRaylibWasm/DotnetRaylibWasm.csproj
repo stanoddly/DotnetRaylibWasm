@@ -8,21 +8,28 @@
     <RunAOTCompilation>true</RunAOTCompilation>
     <WasmBuildNative>true</WasmBuildNative>
     <RootNamespace>DotnetRaylibWasm</RootNamespace>
-    <WasmLinkIcalls>false</WasmLinkIcalls>
     <WasmNativeStrip>false</WasmNativeStrip>
+    <EnableAggressiveTrimming>true</EnableAggressiveTrimming>
     <PublishTrimmed>true</PublishTrimmed>
     <TrimMode>full</TrimMode>
   </PropertyGroup>
-
-  <PropertyGroup Condition=" $(Configuration) == 'Debug' ">
-    <EmccFlags>-sUSE_GLFW=3 -sVERBOSE=1 -Wbad-function-cast -Wcast-function-type -O2 -g3 --emit-symbol-map -sASYNCIFY=1 -sVERBOSE=1 -sINITIAL_MEMORY=128MB -sMAXIMUM_MEMORY=2048MB -sALLOW_MEMORY_GROWTH=1 -sASYNCIFY_STACK_SIZE=10000000</EmccFlags>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" $(Configuration) == 'Release' ">
-    <EmccFlags>-s USE_GLFW=3 -sASYNCIFY=1 -O3</EmccFlags>
-  </PropertyGroup>
   
+  <Choose>
+    <When Condition=" $(Configuration) == 'Debug' ">
+      <PropertyGroup>
+        <WasmEmitSymbolMap>true</WasmEmitSymbolMap>
+        <EmccFlags>-sUSE_GLFW=3 -sASYNCIFY=1 -sVERBOSE=1 -Wbad-function-cast -Wcast-function-type -O2 -g3 -sVERBOSE=1 -sINITIAL_MEMORY=128MB -sMAXIMUM_MEMORY=2048MB -sALLOW_MEMORY_GROWTH=1 -sASYNCIFY_STACK_SIZE=10000000</EmccFlags>
+      </PropertyGroup>
+    </When>
+    <When Condition=" $(Configuration) == 'Release' ">
+      <PropertyGroup>
+        <EmccFlags>-s USE_GLFW=3 -sASYNCIFY=1 -O3</EmccFlags>
+      </PropertyGroup>
+    </When>
+  </Choose>
+
   <ItemGroup>
+    <EmccExportedFunction Include="GetColor" />
     <WasmExtraFilesToDeploy Include="index.html" />
     <WasmExtraFilesToDeploy Include="raylib.html" />
     <WasmExtraFilesToDeploy Include="main.js" />
