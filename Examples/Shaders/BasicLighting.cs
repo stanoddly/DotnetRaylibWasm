@@ -41,7 +41,7 @@ namespace Examples.Shaders
 {
     public class BasicLighting
     {
-        const int GLSL_VERSION = 330;
+        const int GLSL_VERSION = 100;
 
         public unsafe static int Main()
         {

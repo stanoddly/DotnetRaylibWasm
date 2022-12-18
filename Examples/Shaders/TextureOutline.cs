@@ -22,7 +22,7 @@ namespace Examples.Shaders
 {
     public class TextureOutline
     {
-        const int GLSL_VERSION = 330;
+        const int GLSL_VERSION = 100;
 
         public static int Main()
         {

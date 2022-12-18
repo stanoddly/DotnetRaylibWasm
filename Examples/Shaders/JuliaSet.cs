@@ -28,7 +28,7 @@ namespace Examples.Shaders
 {
     public class JuliaSet
     {
-        const int GLSL_VERSION = 330;
+        const int GLSL_VERSION = 100;
 
         // A few good julia sets
         static float[][] POINTS_OF_INTEREST = new float[][] {

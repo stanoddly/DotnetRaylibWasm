@@ -28,8 +28,7 @@ namespace Examples.Shaders
 {
     public class Raymarching
     {
-        public const int GLSL_VERSION = 330;
-        // public const int GLSL_VERSION = 100;
+        public const int GLSL_VERSION = 100;
 
         public static int Main()
         {

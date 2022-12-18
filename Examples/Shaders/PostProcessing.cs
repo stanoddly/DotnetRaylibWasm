@@ -28,9 +28,6 @@ namespace Examples.Shaders
 {
     public class PostProcessing
     {
-        public const int GLSL_VERSION = 330;
-        // public const int GLSL_VERSION = 100;
-
         public const int MAX_POSTPRO_SHADERS = 12;
 
         enum PostproShader

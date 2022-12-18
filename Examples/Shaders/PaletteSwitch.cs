@@ -28,7 +28,7 @@ namespace Examples.Shaders
 {
     public class PaletteSwitch
     {
-        const int GLSL_VERSION = 330;
+        const int GLSL_VERSION = 100;
 
         const int MAX_PALETTES = 3;
         const int COLORS_PER_PALETTE = 8;

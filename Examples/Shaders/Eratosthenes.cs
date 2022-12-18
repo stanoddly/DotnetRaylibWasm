@@ -32,7 +32,7 @@ namespace Examples.Shaders
 {
     public class Eratosthenes
     {
-        const int GLSL_VERSION = 330;
+        const int GLSL_VERSION = 100;
 
         public static int Main()
         {
