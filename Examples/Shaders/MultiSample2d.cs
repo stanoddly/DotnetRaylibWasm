@@ -43,7 +43,7 @@ namespace Examples.Shaders
             Texture2D texBlue = LoadTextureFromImage(imBlue);
             UnloadImage(imBlue);
 
-            Shader shader = LoadShader(null, "resources/shaders/glsl330/color_mix.fs");
+            Shader shader = LoadShader(null, "resources/shaders/glsl100/color_mix.fs");
 
             // Get an additional sampler2D location to be enabled on drawing
             int texBlueLoc = GetShaderLocation(shader, "texture1");

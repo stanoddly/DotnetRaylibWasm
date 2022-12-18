@@ -89,7 +89,7 @@ namespace Examples.Shaders
             int frameCounter = 0;
 
             // Use default vert shader
-            Shader shdrSpot = LoadShader(null, "resources/shaders/glsl330/spotlight.fs");
+            Shader shdrSpot = LoadShader(null, "resources/shaders/glsl100/spotlight.fs");
 
             // Get the locations of spots in the shader
             Spot[] spots = new Spot[MAX_SPOTS];

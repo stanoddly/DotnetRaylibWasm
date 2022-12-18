@@ -93,7 +93,7 @@ namespace Examples.Shaders
             Shader[] shaders = new Shader[MAX_POSTPRO_SHADERS];
 
             // NOTE: Defining null (NULL) for vertex shader forces usage of internal default vertex shader
-            string shaderPath = "resources/shaders/glsl330";
+            string shaderPath = "resources/shaders/glsl100";
             shaders[(int)PostproShader.FX_GRAYSCALE] = LoadShader(null, $"{shaderPath}/grayscale.fs");
             shaders[(int)PostproShader.FX_POSTERIZATION] = LoadShader(null, $"{shaderPath}/posterization.fs");
             shaders[(int)PostproShader.FX_DREAM_VISION] = LoadShader(null, $"{shaderPath}/dream_vision.fs");

@@ -37,8 +37,8 @@ namespace Examples.Shaders
             Texture2D fudesumi = LoadTexture("resources/fudesumi.png");
 
             // NOTE: Using GLSL 330 shader version, on OpenGL ES 2.0 use GLSL 100 shader version
-            Shader shader = LoadShader("resources/shaders/glsl330/base.vs",
-                                       "resources/shaders/glsl330/grayscale.fs");
+            Shader shader = LoadShader("resources/shaders/glsl100/base.vs",
+                                       "resources/shaders/glsl100/grayscale.fs");
 
             SetTargetFPS(60);
             //--------------------------------------------------------------------------------------

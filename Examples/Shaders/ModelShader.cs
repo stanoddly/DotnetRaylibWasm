@@ -49,8 +49,8 @@ namespace Examples.Shaders
 
             Model model = LoadModel("resources/models/watermill.obj");                   // Load OBJ model
             Texture2D texture = LoadTexture("resources/models/watermill_diffuse.png");   // Load model texture
-            Shader shader = LoadShader("resources/shaders/glsl330/base.vs",
-                                       "resources/shaders/glsl330/grayscale.fs");   // Load model shader
+            Shader shader = LoadShader("resources/shaders/glsl100/base.vs",
+                                       "resources/shaders/glsl100/grayscale.fs");   // Load model shader
 
             Raylib.SetMaterialShader(ref model, 0, ref shader);  // Set shader effect to 3d model
             Raylib.SetMaterialTexture(ref model, 0, MATERIAL_MAP_ALBEDO, ref texture);    // Bind texture to model

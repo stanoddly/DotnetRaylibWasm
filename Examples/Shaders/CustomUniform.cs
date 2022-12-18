@@ -57,8 +57,8 @@ namespace Examples.Shaders
             Vector3 position = new Vector3(0.0f, 0.0f, 0.0f);
 
             // Load postpro shader
-            Shader shader = LoadShader("resources/shaders/glsl330/base.vs",
-                                       "resources/shaders/glsl330/swirl.fs");
+            Shader shader = LoadShader("resources/shaders/glsl100/base.vs",
+                                       "resources/shaders/glsl100/swirl.fs");
 
             // Get variable (uniform) location on the shader to connect with the program
             // NOTE: If uniform variable could not be found in the shader, function returns -1

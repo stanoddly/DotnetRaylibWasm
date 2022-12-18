@@ -41,13 +41,13 @@ namespace Examples.Models
 
             // Load skybox shader and set required locations
             // NOTE: Some locations are automatically set at shader loading
-            Shader shader = LoadShader("resources/shaders/glsl330/skybox.vs", "resources/shaders/glsl330/skybox.fs");
+            Shader shader = LoadShader("resources/shaders/glsl100/skybox.vs", "resources/shaders/glsl100/skybox.fs");
             Raylib.SetMaterialShader(ref skybox, 0, ref shader);
             Raylib.SetShaderValue(shader, GetShaderLocation(shader, "environmentMap"), (int)MATERIAL_MAP_CUBEMAP, SHADER_UNIFORM_INT);
             Raylib.SetShaderValue(shader, GetShaderLocation(shader, "vflipped"), 1, SHADER_UNIFORM_INT);
 
             // Load cubemap shader and setup required shader locations
-            Shader shdrCubemap = LoadShader("resources/shaders/glsl330/cubemap.vs", "resources/shaders/glsl330/cubemap.fs");
+            Shader shdrCubemap = LoadShader("resources/shaders/glsl100/cubemap.vs", "resources/shaders/glsl100/cubemap.fs");
             Raylib.SetShaderValue(shdrCubemap, GetShaderLocation(shdrCubemap, "equirectangularMap"), 0, SHADER_UNIFORM_INT);
 
             // Load HDR panorama (sphere) texture

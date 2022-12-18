@@ -87,7 +87,7 @@ namespace Examples.Shaders
             }
 
             Matrix4x4[] transforms = new Matrix4x4[instances];   // Pre-multiplied transformations passed to rlgl
-            Shader shader = LoadShader("resources/shaders/glsl330/base_lighting_instanced.vs", "resources/shaders/glsl330/lighting.fs");
+            Shader shader = LoadShader("resources/shaders/glsl100/base_lighting_instanced.vs", "resources/shaders/glsl100/lighting.fs");
 
             // Get some shader loactions
             unsafe

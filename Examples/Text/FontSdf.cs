@@ -66,7 +66,7 @@ namespace Examples.Text
             UnloadFileData(fileData);
 
             // Load SDF required shader (we use default vertex shader)
-            Shader shader = LoadShader(null, "resources/shaders/glsl330/sdf.fs");
+            Shader shader = LoadShader(null, "resources/shaders/glsl100/sdf.fs");
             // Required for SDF font
             SetTextureFilter(fontSDF.texture, TEXTURE_FILTER_BILINEAR);
 

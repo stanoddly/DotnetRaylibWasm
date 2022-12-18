@@ -64,7 +64,7 @@ namespace Examples.Shaders
             Model model3 = LoadModelFromMesh(sphere);
 
             // Load the shader
-            Shader shader = LoadShader("resources/shaders/glsl330/mask.vs", "resources/shaders/glsl330/mask.fs");
+            Shader shader = LoadShader("resources/shaders/glsl100/mask.vs", "resources/shaders/glsl100/mask.fs");
 
             // Load and apply the diffuse texture (colour map)
             Texture2D texDiffuse = LoadTexture("resources/plasma.png");

@@ -65,8 +65,8 @@ namespace Examples.Shaders
             Model model = LoadModelFromMesh(GenMeshPlane(10.0f, 10.0f, 3, 3));
             Model cube = LoadModelFromMesh(GenMeshCube(2.0f, 4.0f, 2.0f));
 
-            Shader shader = LoadShader("resources/shaders/glsl330/base_lighting.vs",
-                                       "resources/shaders/glsl330/lighting.fs");
+            Shader shader = LoadShader("resources/shaders/glsl100/base_lighting.vs",
+                                       "resources/shaders/glsl100/lighting.fs");
 
             // Get some required shader loactions
             shader.locs[(int)SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(shader, "viewPos");

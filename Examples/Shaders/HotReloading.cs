@@ -33,7 +33,7 @@ namespace Examples.Shaders
 
             InitWindow(screenWidth, screenHeight, "raylib [shaders] example - hot reloading");
 
-            string fragShaderFileName = "resources/shaders/glsl330/reload.fs";
+            string fragShaderFileName = "resources/shaders/glsl100/reload.fs";
             long fragShaderFileModTime = GetFileModTime(fragShaderFileName);
 
             // Load raymarching shader

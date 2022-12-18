@@ -72,7 +72,7 @@ namespace Examples.Shaders
             Raylib.SetMaterialTexture(ref modelC, 0, MATERIAL_MAP_ALBEDO, ref texture);
 
             // Load shader and set up some uniforms
-            Shader shader = LoadShader("resources/shaders/glsl330/base_lighting.vs", "resources/shaders/glsl330/fog.fs");
+            Shader shader = LoadShader("resources/shaders/glsl100/base_lighting.vs", "resources/shaders/glsl100/fog.fs");
             shader.locs[(int)SHADER_LOC_MATRIX_MODEL] = GetShaderLocation(shader, "matModel");
             shader.locs[(int)SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(shader, "viewPos");
 
