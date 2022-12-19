@@ -4,7 +4,7 @@
 
 [GitHub Pages Demo](https://disketteman.github.io/DotnetRaylibWasm/)
 
-This is a work-in-progress prototype for .NET 7 with Raylib ahead-of-time 🚀 compiled into WebAssembly (wasm). It's purpose is to demonstrate the capability once it's finished.
+This is a fully working prototype for .NET 7 with Raylib ahead-of-time 🚀 compiled into WebAssembly (wasm). See a couple of [known issues](https://github.com/disketteman/DotnetRaylibWasm/issues) for limitations.
 
 ## Local setup
 
