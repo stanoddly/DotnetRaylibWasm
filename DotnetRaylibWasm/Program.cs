@@ -104,7 +104,7 @@ public static class Program
             "RandomValues" => Examples.Core.RandomValues.Main(),
             "InputKeys" => Examples.Core.InputKeys.Main(),
             "WindowFlags" => Examples.Core.WindowFlags.Main(),
-            "SmoothPixelperfect" => Examples.Core.SmoothPixelPerfect.Main(),
+            "SmoothPixelPerfect" => Examples.Core.SmoothPixelPerfect.Main(),
             "Picking3D" => Examples.Core.Picking3d.Main(),
             "Camera3dFree" => Examples.Core.Camera3dFree.Main(),
             "InputMultitouch" => Examples.Core.InputMultitouch.Main(),
