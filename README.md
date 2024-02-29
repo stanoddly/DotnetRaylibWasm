@@ -31,10 +31,16 @@ dotnet tool install --global dotnet-serve
 
 ## Overview
 
-Examples are copied from [ChrisDill/Raylib-cs-Examples](https://github.com/ChrisDill/Raylib-cs-Examples). Few examples were removed since they used functionality removed from Raylib 4.2. This project uses 4.2.0.2 of the `Raylib-cs` nuget package.
+Examples are copied from [ChrisDill/Raylib-cs-Examples](https://github.com/ChrisDill/Raylib-cs-Examples). Few examples were removed since they used functionality removed from Raylib 4.2.
 
 ```
 ./Examples
+```
+
+Raylib-cs or Raylib-cslo cannot be used via nuget due to [a bug](https://github.com/disketteman/DotnetRaylibWasm/issues/5), so a copy & paste fork is used. Few functions were removed since they were removed from Raylib 4.2.
+
+```
+./Raylib_cs
 ```
 
 The project which makes the WebAssembly possible is here:
