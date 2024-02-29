@@ -1,19 +1,19 @@
 {
   "mainAssemblyName": "DotnetRaylibWasm.dll",
   "resources": {
-    "hash": "sha256-ocI9mOfBDeuPUNZw0mqWLB++Ni5CfbNFp3/gWJWMq88=",
+    "hash": "sha256-aoV7ARcUARcwuqWB+uQxwsPvN1uZUckykVfawUgB75E=",
     "jsModuleNative": {
-      "dotnet.native.js": "sha256-UJOjMEmOVNxaJM1biHqN30nqwtn1NObZVp4nloes8ek="
+      "dotnet.native.js": "sha256-belHBVi7OgDe8OP3k1mCC2ANXEa2XbiNu9prDRAET/k="
     },
     "jsModuleRuntime": {
       "dotnet.runtime.js": "sha256-54KSaoOArNfygQbV+r4B5y3ys53v2tnvFIyZcZiUmi0="
     },
     "wasmNative": {
-      "dotnet.native.wasm": "sha256-nRpjeaMhUQsAJsW4lr9+LDx0Ir+DearpdvtzgtIanMI="
+      "dotnet.native.wasm": "sha256-IMqpsOgfLf/AqMbAV1jEJXuKLVufkvx+v8GvsJJ6OP0="
     },
     "assembly": {
-      "DotnetRaylibWasm.wasm": "sha256-h1Ln3/B+3QQWWsVxPmXOqBgXZmkgwUtmls8pLx4UaMY=",
-      "Examples.wasm": "sha256-w6xR25YolkKCHlmxqPKjRWT075qlFwS5BsuRiI1Zt5U=",
+      "DotnetRaylibWasm.wasm": "sha256-XyNEtpsATw4gEMmRQRgSE8CmEZl9TFrdPKgG6cC1U3c=",
+      "Examples.wasm": "sha256-PdOw48ZYE4Au0S617nxkfjOtnU5/DeU5GH2hG/owmCo=",
       "Raylib-cs.wasm": "sha256-JyVWlgd8X3Xcyejd9P+sFBEa16THaC14UWbLO7qO4AQ=",
       "System.Private.CoreLib.wasm": "sha256-lXLIMCh8Z1p99gJYSmKbTwvJzJSQz5T3zH9vVevO0us=",
       "System.Runtime.InteropServices.JavaScript.wasm": "sha256-U9voKOTEeI3aVbWOIyouYILIm57MAAUUlDmyaeJkj1M="
