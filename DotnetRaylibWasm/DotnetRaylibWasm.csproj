@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <RuntimeIdentifier>browser-wasm</RuntimeIdentifier>
     <WasmMainJSPath>main.js</WasmMainJSPath>
     <OutputType>Exe</OutputType>
@@ -14,6 +14,7 @@
     <TrimMode>full</TrimMode>
     <!-- This is to basically disable globalization to exclude icudt.dat (1.5MB) and reduce size of dotnet.wasm -->
     <InvariantGlobalization>true</InvariantGlobalization>
+    <LangVersion>12</LangVersion>
   </PropertyGroup>
   
   <Choose>
