@@ -2,16 +2,16 @@
 
 <img src="https://raw.githubusercontent.com/disketteman/DotnetRaylibWasm/main/demo.jpg" width="417" height="272">
 
-[GitHub Pages Demo](https://disketteman.github.io/DotnetRaylibWasm/)
+[GitHub Pages Demo](https://stanoddly.github.io/DotnetRaylibWasm/)
 
-This is a fully working prototype for .NET 7 with Raylib ahead-of-time 🚀 compiled into WebAssembly (wasm). See a couple of [known issues](https://github.com/disketteman/DotnetRaylibWasm/issues) for limitations.
+This is a fully working prototype for .NET 8 with Raylib ahead-of-time 🚀 compiled into WebAssembly (wasm). See a couple of [known issues](https://github.com/disketteman/DotnetRaylibWasm/issues) for limitations.
 
 ## Local setup
 
-Make sure you have the latest version of .NET 7 for example from [here](https://dotnet.microsoft.com/en-us/download/dotnet/7.0), the prototype was built with:
+Make sure you have the latest version of .NET 8 for example from [here](https://dotnet.microsoft.com/en-us/download/dotnet/8.0), the prototype was built with:
 ```
 dotnet --version
-7.0.100
+8.0.200
 ```
 
 Install the official wasm tooling:
@@ -50,13 +50,13 @@ The project which makes the WebAssembly possible is here:
 `publish` the solution from the root of the repository. Don't even try to use just `build`, [it's buggy](https://github.com/disketteman/DotnetRaylibWasm/issues/7#issuecomment-1356442508). Note the publishing takes a while:
 
 ```
-dotnet publish -C Release
+dotnet publish -c Release
 ```
 
 To serve the files use this command from the root (change `\` to `/` in file path if you are not on Windows):
 
 ```
-dotnet serve --mime .wasm=application/wasm --mime .js=text/javascript --mime .json=application/json --directory DotnetRaylibWasm\bin\Debug\net7.0\browser-wasm\AppBundle\
+dotnet serve --mime .wasm=application/wasm --mime .js=text/javascript --mime .json=application/json --directory DotnetRaylibWasm\bin\Debug\net8.0\browser-wasm\AppBundle\
 ```
 
 Copy the link from the output and open it in your browser (tested on the latest Chrome).

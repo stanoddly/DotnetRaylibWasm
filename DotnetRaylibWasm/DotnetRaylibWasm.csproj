@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <RuntimeIdentifier>browser-wasm</RuntimeIdentifier>
     <WasmMainJSPath>main.js</WasmMainJSPath>
     <OutputType>Exe</OutputType>
@@ -14,18 +14,19 @@
     <TrimMode>full</TrimMode>
     <!-- This is to basically disable globalization to exclude icudt.dat (1.5MB) and reduce size of dotnet.wasm -->
     <InvariantGlobalization>true</InvariantGlobalization>
+    <LangVersion>12</LangVersion>
   </PropertyGroup>
   
   <Choose>
     <When Condition=" $(Configuration) == 'Debug' ">
       <PropertyGroup>
         <WasmEmitSymbolMap>true</WasmEmitSymbolMap>
-        <EmccFlags>-sUSE_GLFW=3 -sASYNCIFY=1 -sVERBOSE=1 -Wbad-function-cast -Wcast-function-type -O2 -g3 -sVERBOSE=1 -sINITIAL_MEMORY=128MB -sMAXIMUM_MEMORY=2048MB -sALLOW_MEMORY_GROWTH=1 -sASYNCIFY_STACK_SIZE=10000000</EmccFlags>
+        <EmccFlags>-sUSE_GLFW=3 -sVERBOSE=1 -Wbad-function-cast -Wcast-function-type -O2 -g3 -sVERBOSE=1 -sINITIAL_MEMORY=128MB -sMAXIMUM_MEMORY=2048MB -sALLOW_MEMORY_GROWTH=1 -sASYNCIFY_STACK_SIZE=10000000</EmccFlags>
       </PropertyGroup>
     </When>
     <When Condition=" $(Configuration) == 'Release' ">
       <PropertyGroup>
-        <EmccFlags>-s USE_GLFW=3 -sASYNCIFY=1 -O3</EmccFlags>
+        <EmccFlags>-s USE_GLFW=3 -O3</EmccFlags>
       </PropertyGroup>
     </When>
   </Choose>
