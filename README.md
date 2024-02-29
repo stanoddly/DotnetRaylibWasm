@@ -2,7 +2,7 @@
 
 <img src="https://raw.githubusercontent.com/disketteman/DotnetRaylibWasm/main/demo.jpg" width="417" height="272">
 
-[GitHub Pages Demo](https://disketteman.github.io/DotnetRaylibWasm/)
+[GitHub Pages Demo](https://stanoddly.github.io/DotnetRaylibWasm/)
 
 This is a fully working prototype for .NET 8 with Raylib ahead-of-time 🚀 compiled into WebAssembly (wasm). See a couple of [known issues](https://github.com/disketteman/DotnetRaylibWasm/issues) for limitations.
 
